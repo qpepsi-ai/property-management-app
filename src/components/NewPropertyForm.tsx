@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { inputClass, buttonClass, cardClass } from "@/lib/ui";
+import { geocodeAndSaveProperty } from "@/lib/geocode-property";
 
 const PROPERTY_TYPES = ["single-family", "duplex", "multi-unit"] as const;
 
@@ -37,7 +38,10 @@ export default function NewPropertyForm() {
       return;
     }
 
-    router.push(`/properties/${(data as { id: string }).id}`);
+    const propertyId = (data as { id: string }).id;
+    await geocodeAndSaveProperty(supabase, propertyId, address);
+
+    router.push(`/properties/${propertyId}`);
     router.refresh();
   }
 

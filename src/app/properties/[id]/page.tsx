@@ -8,6 +8,7 @@ import AddExpenseForm from "@/components/AddExpenseForm";
 import ExpenseRow from "@/components/ExpenseRow";
 import NewMaintenanceRequestForm from "@/components/NewMaintenanceRequestForm";
 import MaintenanceRequestRow from "@/components/MaintenanceRequestRow";
+import PropertyMap from "@/components/PropertyMapLoader";
 import { pagePanelClass } from "@/lib/ui";
 
 export default async function PropertyDetailPage({
@@ -20,7 +21,7 @@ export default async function PropertyDetailPage({
 
   const { data: property } = await supabase
     .from("properties")
-    .select("id, address, type, purchase_date")
+    .select("id, address, type, purchase_date, latitude, longitude")
     .eq("id", id)
     .single();
 
@@ -63,6 +64,16 @@ export default async function PropertyDetailPage({
       </Link>
 
       <EditPropertyForm property={property} />
+
+      {property.latitude !== null && property.longitude !== null && (
+        <div className="mb-10">
+          <PropertyMap
+            latitude={property.latitude}
+            longitude={property.longitude}
+            address={property.address}
+          />
+        </div>
+      )}
 
       <h2 className="mb-4 text-xl font-semibold text-foreground">Units</h2>
       {units && units.length > 0 ? (

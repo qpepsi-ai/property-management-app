@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { inputClass, buttonClass, cardClass } from "@/lib/ui";
+import { geocodeAndSaveProperty } from "@/lib/geocode-property";
 
 const PROPERTY_TYPES = ["single-family", "duplex", "multi-unit"] as const;
 
@@ -38,6 +39,10 @@ export default function EditPropertyForm({ property }: { property: Property }) {
       setStatus("error");
       setErrorMessage(error.message);
       return;
+    }
+
+    if (address !== property.address) {
+      await geocodeAndSaveProperty(supabase, property.id, address);
     }
 
     setStatus("idle");

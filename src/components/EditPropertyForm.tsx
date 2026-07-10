@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { inputClass, buttonClass, cardClass } from "@/lib/ui";
+import { inputClass, labelClass, buttonClass, cardClass } from "@/lib/ui";
 import { geocodeAndSaveProperty } from "@/lib/geocode-property";
 
 const PROPERTY_TYPES = ["single-family", "duplex", "multi-unit"] as const;
@@ -13,6 +13,8 @@ type Property = {
   address: string;
   type: (typeof PROPERTY_TYPES)[number];
   purchase_date: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
 };
 
 export default function EditPropertyForm({ property }: { property: Property }) {
@@ -21,6 +23,8 @@ export default function EditPropertyForm({ property }: { property: Property }) {
   const [address, setAddress] = useState(property.address);
   const [type, setType] = useState(property.type);
   const [purchaseDate, setPurchaseDate] = useState(property.purchase_date ?? "");
+  const [latitude, setLatitude] = useState(property.latitude?.toString() ?? "");
+  const [longitude, setLongitude] = useState(property.longitude?.toString() ?? "");
   const [status, setStatus] = useState<"idle" | "saving" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -30,9 +34,19 @@ export default function EditPropertyForm({ property }: { property: Property }) {
     setErrorMessage("");
 
     const supabase = createClient();
+    const manualLat = latitude.trim() ? Number(latitude) : null;
+    const manualLng = longitude.trim() ? Number(longitude) : null;
+
     const { error } = await supabase
       .from("properties")
-      .update({ address, type, purchase_date: purchaseDate || null })
+      .update({
+        address,
+        type,
+        purchase_date: purchaseDate || null,
+        ...(manualLat !== null && manualLng !== null
+          ? { latitude: manualLat, longitude: manualLng }
+          : {}),
+      })
       .eq("id", property.id);
 
     if (error) {
@@ -41,7 +55,9 @@ export default function EditPropertyForm({ property }: { property: Property }) {
       return;
     }
 
-    if (address !== property.address) {
+    // Manual coordinates take priority; only auto-geocode if none were
+    // entered and the address actually changed.
+    if (manualLat === null && manualLng === null && address !== property.address) {
       await geocodeAndSaveProperty(supabase, property.id, address);
     }
 
@@ -127,6 +143,43 @@ export default function EditPropertyForm({ property }: { property: Property }) {
           className={`flex-1 ${inputClass}`}
         />
       </div>
+
+      <div className="border-t border-border pt-3">
+        <p className={labelClass}>
+          Map coordinates (optional — auto-detected from address when possible)
+        </p>
+        <div className="mt-1 flex gap-3">
+          <input
+            type="number"
+            step="any"
+            placeholder="Latitude"
+            value={latitude}
+            onChange={(e) => setLatitude(e.target.value)}
+            className={`flex-1 ${inputClass}`}
+          />
+          <input
+            type="number"
+            step="any"
+            placeholder="Longitude"
+            value={longitude}
+            onChange={(e) => setLongitude(e.target.value)}
+            className={`flex-1 ${inputClass}`}
+          />
+        </div>
+        <p className="mt-1 text-xs text-muted">
+          Find these by right-clicking a location on{" "}
+          <a
+            href="https://www.google.com/maps"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-accent hover:underline"
+          >
+            Google Maps
+          </a>{" "}
+          and copying the coordinates shown.
+        </p>
+      </div>
+
       <div className="flex gap-3">
         <button type="submit" disabled={status === "saving"} className={buttonClass("primary")}>
           {status === "saving" ? "Saving…" : "Save"}

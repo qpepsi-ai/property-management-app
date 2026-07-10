@@ -64,7 +64,7 @@ export default function EditTenantForm({ tenant }: { tenant: Tenant }) {
         onChange={(e) => setName(e.target.value)}
         className={inputClass}
       />
-      <div className="flex gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row">
         <input
           type="email"
           placeholder="Email"

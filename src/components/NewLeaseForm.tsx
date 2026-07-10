@@ -128,7 +128,7 @@ export default function NewLeaseForm({
               onChange={(e) => setTenantName(e.target.value)}
               className={inputClass}
             />
-            <div className="flex gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row">
               <input
                 type="email"
                 placeholder="Email"
@@ -151,7 +151,7 @@ export default function NewLeaseForm({
       <div className={cardClass}>
         <h2 className="mb-3 text-sm font-semibold text-foreground">Lease terms</h2>
         <div className="space-y-3">
-          <div className="flex gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row">
             <label className={`flex-1 ${labelClass}`}>
               Start date
               <input
@@ -173,7 +173,7 @@ export default function NewLeaseForm({
               />
             </label>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row">
             <label className={`flex-1 ${labelClass}`}>
               Monthly rent
               <input

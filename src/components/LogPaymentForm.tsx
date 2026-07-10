@@ -58,7 +58,7 @@ export default function LogPaymentForm({
   return (
     <form onSubmit={handleSubmit} className={`space-y-3 ${cardClass}`}>
       <h2 className="text-sm font-semibold text-foreground">Log a payment</h2>
-      <div className="flex gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row">
         <label className={`flex-1 ${labelClass}`}>
           Due date
           <input

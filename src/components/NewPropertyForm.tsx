@@ -56,7 +56,7 @@ export default function NewPropertyForm() {
         onChange={(e) => setAddress(e.target.value)}
         className={inputClass}
       />
-      <div className="flex gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row">
         <select
           value={type}
           onChange={(e) =>

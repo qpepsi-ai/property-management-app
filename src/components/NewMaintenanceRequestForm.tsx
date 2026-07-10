@@ -123,7 +123,7 @@ export default function NewMaintenanceRequestForm({
         </div>
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row">
         <label className={`flex-1 ${labelClass}`}>
           Date reported
           <input

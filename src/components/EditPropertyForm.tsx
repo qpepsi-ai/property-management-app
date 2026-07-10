@@ -124,7 +124,7 @@ export default function EditPropertyForm({ property }: { property: Property }) {
         onChange={(e) => setAddress(e.target.value)}
         className={inputClass}
       />
-      <div className="flex gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row">
         <select
           value={type}
           onChange={(e) => setType(e.target.value as (typeof PROPERTY_TYPES)[number])}

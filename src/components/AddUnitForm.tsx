@@ -53,7 +53,7 @@ export default function AddUnitForm({ propertyId }: { propertyId: string }) {
         onChange={(e) => setLabel(e.target.value)}
         className={inputClass}
       />
-      <div className="flex gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row">
         <input
           type="number"
           min="0"

@@ -39,6 +39,12 @@ export default async function Home() {
           <Link href="/maintenance" className="text-sm text-blue-600 hover:underline">
             Maintenance →
           </Link>
+          <Link href="/reports" className="text-sm text-blue-600 hover:underline">
+            Reports →
+          </Link>
+          <Link href="/receipts" className="text-sm text-blue-600 hover:underline">
+            Receipts →
+          </Link>
         </div>
       </div>
 

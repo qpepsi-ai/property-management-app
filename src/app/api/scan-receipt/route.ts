@@ -1,17 +1,7 @@
 import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@/lib/supabase/server";
-
-const CATEGORIES = [
-  "Mortgage",
-  "Insurance",
-  "Property tax",
-  "Repairs & maintenance",
-  "Utilities",
-  "HOA fees",
-  "Management fees",
-  "Other",
-];
+import { EXPENSE_CATEGORIES as CATEGORIES } from "@/lib/expense-categories";
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 

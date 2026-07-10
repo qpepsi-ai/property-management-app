@@ -92,7 +92,9 @@ export default async function PropertyDetailPage({
         <p className="mb-8 text-sm text-gray-500">No expenses yet.</p>
       )}
 
-      <AddExpenseForm propertyId={property.id} />
+      <div id="add-expense">
+        <AddExpenseForm propertyId={property.id} />
+      </div>
 
       <h2 className="mt-10 mb-3 text-sm font-semibold">Maintenance</h2>
       {maintenanceRequests && maintenanceRequests.length > 0 ? (

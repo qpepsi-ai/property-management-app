@@ -3,17 +3,7 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-
-const CATEGORIES = [
-  "Mortgage",
-  "Insurance",
-  "Property tax",
-  "Repairs & maintenance",
-  "Utilities",
-  "HOA fees",
-  "Management fees",
-  "Other",
-];
+import { EXPENSE_CATEGORIES as CATEGORIES } from "@/lib/expense-categories";
 
 function today() {
   return new Date().toISOString().slice(0, 10);

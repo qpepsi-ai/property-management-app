@@ -59,10 +59,11 @@
 
 body {
   background-color: var(--page-bg);
-  background-image: url("/property-illustration.svg");
+  background-image: linear-gradient(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)),
+    url("/property-background.jpg");
   background-repeat: no-repeat;
-  background-position: bottom center;
-  background-size: 100% auto;
+  background-position: center;
+  background-size: cover;
   background-attachment: fixed;
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;

@@ -19,7 +19,7 @@ export default function PropertyMap({
   }, []);
 
   return (
-    <div className="overflow-hidden rounded-2xl" style={{ height: 240 }}>
+    <div className="isolate overflow-hidden rounded-2xl" style={{ height: 240 }}>
       <MapContainer
         center={[latitude, longitude]}
         zoom={15}

@@ -42,7 +42,7 @@ export default function PortfolioMap({ properties }: { properties: Property[] })
   const points: [number, number][] = located.map((p) => [p.latitude, p.longitude]);
 
   return (
-    <div className="overflow-hidden rounded-2xl" style={{ height: 280 }}>
+    <div className="isolate overflow-hidden rounded-2xl" style={{ height: 280 }}>
       <MapContainer
         center={points[0]}
         zoom={12}

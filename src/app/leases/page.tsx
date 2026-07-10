@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { cardClass, pagePanelClass } from "@/lib/ui";
+import Badge from "@/components/ui/Badge";
 
 const RENEWAL_WINDOW_DAYS = 60;
 
@@ -20,16 +22,16 @@ export default async function LeasesPage() {
     .eq("status", "vacant");
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10">
-      <Link href="/" className="mb-6 inline-block text-sm text-gray-500 hover:underline">
+    <div className={`mx-auto w-full max-w-3xl px-6 py-14 ${pagePanelClass}`}>
+      <Link href="/dashboard" className="mb-8 inline-block text-sm text-muted hover:text-accent">
         ← All properties
       </Link>
 
-      <h1 className="mb-6 text-lg font-semibold">Tenants &amp; Leases</h1>
+      <h1 className="mb-8 text-3xl font-semibold tracking-tight text-foreground">Tenants &amp; Leases</h1>
 
-      <h2 className="mb-3 text-sm font-semibold">Current leases</h2>
+      <h2 className="mb-4 text-xl font-semibold text-foreground">Current leases</h2>
       {leases && leases.length > 0 ? (
-        <ul className="mb-8 space-y-2">
+        <ul className="mb-10 space-y-3">
           {leases.map((lease) => {
             const unit = Array.isArray(lease.unit) ? lease.unit[0] : lease.unit;
             const property = Array.isArray(unit?.property) ? unit.property[0] : unit?.property;
@@ -43,51 +45,47 @@ export default async function LeasesPage() {
               <li key={lease.id}>
                 <Link
                   href={`/leases/${lease.id}`}
-                  className="flex items-center justify-between rounded border border-gray-200 px-4 py-3 text-sm hover:border-gray-400"
+                  className={`flex items-center justify-between ${cardClass} transition-shadow hover:shadow-md`}
                 >
                   <span>
-                    <span className="font-medium">{tenant?.name}</span>{" "}
-                    <span className="text-gray-500">
+                    <span className="font-medium text-foreground">{tenant?.name}</span>{" "}
+                    <span className="text-muted">
                       · {unit?.label}, {property?.address} · ${lease.rent_amount}/mo · ends {lease.end_date}
                     </span>
                   </span>
-                  {nearingRenewal && (
-                    <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-800">
-                      renewal due
-                    </span>
-                  )}
+                  {nearingRenewal && <Badge variant="warning">renewal due</Badge>}
                 </Link>
               </li>
             );
           })}
         </ul>
       ) : (
-        <p className="mb-8 text-sm text-gray-500">No active leases.</p>
+        <p className="mb-10 text-sm text-muted">No active leases.</p>
       )}
 
-      <h2 className="mb-3 text-sm font-semibold">Vacant units</h2>
+      <h2 className="mb-4 text-xl font-semibold text-foreground">Vacant units</h2>
       {vacantUnits && vacantUnits.length > 0 ? (
-        <ul className="space-y-2">
+        <ul className="space-y-3">
           {vacantUnits.map((unit) => {
             const property = Array.isArray(unit.property) ? unit.property[0] : unit.property;
             return (
               <li key={unit.id}>
                 <Link
                   href={`/properties/${unit.property_id}/units/${unit.id}/lease/new`}
-                  className="flex items-center justify-between rounded border border-gray-200 px-4 py-3 text-sm hover:border-gray-400"
+                  className={`flex items-center justify-between ${cardClass} transition-shadow hover:shadow-md`}
                 >
                   <span>
-                    <span className="font-medium">{unit.label}</span>{" "}
-                    <span className="text-gray-500">· {property?.address}</span>
+                    <span className="font-medium text-foreground">{unit.label}</span>{" "}
+                    <span className="text-muted">· {property?.address}</span>
                   </span>
-                  <span className="text-xs text-blue-600">New lease</span>
+                  <span className="text-xs text-accent">New lease</span>
                 </Link>
               </li>
             );
           })}
         </ul>
       ) : (
-        <p className="text-sm text-gray-500">No vacant units.</p>
+        <p className="text-sm text-muted">No vacant units.</p>
       )}
     </div>
   );

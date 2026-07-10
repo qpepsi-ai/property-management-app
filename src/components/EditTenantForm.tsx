@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { inputClass, buttonClass } from "@/lib/ui";
 
 type Tenant = { id: string; name: string; email: string | null; phone: string | null };
 
@@ -41,12 +42,12 @@ export default function EditTenantForm({ tenant }: { tenant: Tenant }) {
     return (
       <div className="flex items-start justify-between">
         <div>
-          <p className="font-medium">{tenant.name}</p>
-          <p className="text-sm text-gray-500">
+          <p className="font-medium text-foreground">{tenant.name}</p>
+          <p className="text-sm text-muted">
             {tenant.email ?? "no email"} · {tenant.phone ?? "no phone"}
           </p>
         </div>
-        <button onClick={() => setEditing(true)} className="text-xs text-blue-600 hover:underline">
+        <button onClick={() => setEditing(true)} className="text-xs text-accent hover:underline">
           Edit
         </button>
       </div>
@@ -61,7 +62,7 @@ export default function EditTenantForm({ tenant }: { tenant: Tenant }) {
         placeholder="Name"
         value={name}
         onChange={(e) => setName(e.target.value)}
-        className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
+        className={inputClass}
       />
       <div className="flex gap-3">
         <input
@@ -69,33 +70,25 @@ export default function EditTenantForm({ tenant }: { tenant: Tenant }) {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="flex-1 rounded border border-gray-300 px-3 py-2 text-sm"
+          className={`flex-1 ${inputClass}`}
         />
         <input
           type="tel"
           placeholder="Phone"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          className="flex-1 rounded border border-gray-300 px-3 py-2 text-sm"
+          className={`flex-1 ${inputClass}`}
         />
       </div>
       <div className="flex gap-3">
-        <button
-          type="submit"
-          disabled={status === "saving"}
-          className="rounded bg-black px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
-        >
+        <button type="submit" disabled={status === "saving"} className={buttonClass("primary")}>
           {status === "saving" ? "Saving…" : "Save"}
         </button>
-        <button
-          type="button"
-          onClick={() => setEditing(false)}
-          className="rounded border border-gray-300 px-3 py-2 text-sm"
-        >
+        <button type="button" onClick={() => setEditing(false)} className={buttonClass("secondary")}>
           Cancel
         </button>
       </div>
-      {status === "error" && <p className="text-sm text-red-600">{errorMessage}</p>}
+      {status === "error" && <p className="text-sm text-danger-fg">{errorMessage}</p>}
     </form>
   );
 }

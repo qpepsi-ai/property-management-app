@@ -1,5 +1,7 @@
 "use client";
 
+import { buttonClass } from "@/lib/ui";
+
 type Row = {
   address: string;
   ytd_income: number;
@@ -28,10 +30,7 @@ export default function ExportCsvButton({ rows, year }: { rows: Row[]; year: num
   }
 
   return (
-    <button
-      onClick={handleExport}
-      className="rounded border border-gray-300 px-3 py-1.5 text-sm"
-    >
+    <button onClick={handleExport} className={buttonClass("secondary")}>
       Export CSV
     </button>
   );

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { inputClass, labelClass, buttonClass, cardClass } from "@/lib/ui";
 
 function firstOfMonth(date = new Date()) {
   return new Date(date.getFullYear(), date.getMonth(), 1).toISOString().slice(0, 10);
@@ -55,30 +56,30 @@ export default function LogPaymentForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 rounded border border-gray-200 p-4">
-      <h2 className="text-sm font-semibold">Log a payment</h2>
+    <form onSubmit={handleSubmit} className={`space-y-3 ${cardClass}`}>
+      <h2 className="text-sm font-semibold text-foreground">Log a payment</h2>
       <div className="flex gap-3">
-        <label className="flex-1 text-xs text-gray-500">
+        <label className={`flex-1 ${labelClass}`}>
           Due date
           <input
             type="date"
             required
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
-            className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm text-black"
+            className={`mt-1 ${inputClass}`}
           />
         </label>
-        <label className="flex-1 text-xs text-gray-500">
+        <label className={`flex-1 ${labelClass}`}>
           Paid date
           <input
             type="date"
             value={paidDate}
             onChange={(e) => setPaidDate(e.target.value)}
-            className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm text-black"
+            className={`mt-1 ${inputClass}`}
           />
         </label>
       </div>
-      <label className="block text-xs text-gray-500">
+      <label className={labelClass}>
         Amount paid
         <input
           type="number"
@@ -87,26 +88,22 @@ export default function LogPaymentForm({
           step="0.01"
           value={amountPaid}
           onChange={(e) => setAmountPaid(e.target.value)}
-          className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm text-black"
+          className={`mt-1 ${inputClass}`}
         />
       </label>
-      <label className="block text-xs text-gray-500">
+      <label className={labelClass}>
         Notes (e.g. partial payment reason)
         <input
           type="text"
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm text-black"
+          className={`mt-1 ${inputClass}`}
         />
       </label>
-      <button
-        type="submit"
-        disabled={status === "saving"}
-        className="rounded bg-black px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
-      >
+      <button type="submit" disabled={status === "saving"} className={buttonClass("primary")}>
         {status === "saving" ? "Saving…" : "Log payment"}
       </button>
-      {status === "error" && <p className="text-sm text-red-600">{errorMessage}</p>}
+      {status === "error" && <p className="text-sm text-danger-fg">{errorMessage}</p>}
     </form>
   );
 }

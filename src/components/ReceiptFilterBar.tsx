@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { EXPENSE_CATEGORIES } from "@/lib/expense-categories";
+import { inputClass } from "@/lib/ui";
 
 export default function ReceiptFilterBar({
   properties,
@@ -26,7 +27,7 @@ export default function ReceiptFilterBar({
       <select
         value={searchParams.get("property") ?? ""}
         onChange={(e) => updateParam("property", e.target.value)}
-        className="rounded border border-gray-300 px-3 py-1.5 text-sm"
+        className={`w-auto ${inputClass}`}
       >
         <option value="">All properties</option>
         {properties.map((p) => (
@@ -40,13 +41,13 @@ export default function ReceiptFilterBar({
         type="month"
         value={searchParams.get("month") ?? ""}
         onChange={(e) => updateParam("month", e.target.value)}
-        className="rounded border border-gray-300 px-3 py-1.5 text-sm"
+        className={`w-auto ${inputClass}`}
       />
 
       <select
         value={searchParams.get("category") ?? ""}
         onChange={(e) => updateParam("category", e.target.value)}
-        className="rounded border border-gray-300 px-3 py-1.5 text-sm"
+        className={`w-auto ${inputClass}`}
       >
         <option value="">All categories</option>
         {EXPENSE_CATEGORIES.map((c) => (

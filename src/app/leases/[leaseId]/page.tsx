@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import EditTenantForm from "@/components/EditTenantForm";
 import EndLeaseButton from "@/components/EndLeaseButton";
 import LogPaymentForm from "@/components/LogPaymentForm";
+import { cardClass, pagePanelClass } from "@/lib/ui";
+import Badge from "@/components/ui/Badge";
 
 const RENEWAL_WINDOW_DAYS = 60;
 
@@ -44,83 +46,79 @@ export default async function LeaseDetailPage({
     lease.status === "active" && daysUntilEnd <= RENEWAL_WINDOW_DAYS;
 
   return (
-    <div className="mx-auto max-w-xl px-4 py-10">
+    <div className={`mx-auto w-full max-w-2xl px-6 py-14 ${pagePanelClass}`}>
       <Link
-        href={property ? `/properties/${property.id}` : "/"}
-        className="mb-6 inline-block text-sm text-gray-500 hover:underline"
+        href={property ? `/properties/${property.id}` : "/dashboard"}
+        className="mb-8 inline-block text-sm text-muted hover:text-accent"
       >
         ← {property?.address ?? "Back"}
       </Link>
 
-      <h1 className="mb-1 text-lg font-semibold">{unit?.label}</h1>
-      <p className="mb-6 text-sm text-gray-500">{property?.address}</p>
+      <h1 className="mb-1 text-3xl font-semibold tracking-tight text-foreground">{unit?.label}</h1>
+      <p className="mb-8 text-sm text-muted">{property?.address}</p>
 
       {isNearingRenewal && (
-        <div className="mb-6 rounded border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+        <div className="mb-8 rounded-2xl bg-warning-bg px-4 py-3 text-sm text-warning-fg">
           {daysUntilEnd >= 0
             ? `Lease ends in ${daysUntilEnd} day${daysUntilEnd === 1 ? "" : "s"} — renewal due soon.`
             : `Lease end date has passed by ${Math.abs(daysUntilEnd)} day${Math.abs(daysUntilEnd) === 1 ? "" : "s"}.`}
         </div>
       )}
 
-      <div className="mb-6 rounded border border-gray-200 p-4">
-        <h2 className="mb-3 text-sm font-semibold">Lease terms</h2>
+      <div className={`mb-6 ${cardClass}`}>
+        <h2 className="mb-3 text-sm font-semibold text-foreground">Lease terms</h2>
         <dl className="space-y-1 text-sm">
           <div className="flex justify-between">
-            <dt className="text-gray-500">Status</dt>
-            <dd>{lease.status}</dd>
+            <dt className="text-muted">Status</dt>
+            <dd className="text-foreground">{lease.status}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-gray-500">Start date</dt>
-            <dd>{lease.start_date}</dd>
+            <dt className="text-muted">Start date</dt>
+            <dd className="text-foreground">{lease.start_date}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-gray-500">End date</dt>
-            <dd>{lease.end_date}</dd>
+            <dt className="text-muted">End date</dt>
+            <dd className="text-foreground">{lease.end_date}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-gray-500">Monthly rent</dt>
-            <dd>${lease.rent_amount}</dd>
+            <dt className="text-muted">Monthly rent</dt>
+            <dd className="text-foreground">${lease.rent_amount}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-gray-500">Security deposit</dt>
-            <dd>{lease.security_deposit ? `$${lease.security_deposit}` : "–"}</dd>
+            <dt className="text-muted">Security deposit</dt>
+            <dd className="text-foreground">
+              {lease.security_deposit ? `$${lease.security_deposit}` : "–"}
+            </dd>
           </div>
         </dl>
       </div>
 
       {tenant && (
-        <div className="mb-6 rounded border border-gray-200 p-4">
-          <h2 className="mb-3 text-sm font-semibold">Tenant</h2>
+        <div className={`mb-6 ${cardClass}`}>
+          <h2 className="mb-3 text-sm font-semibold text-foreground">Tenant</h2>
           <EditTenantForm tenant={tenant} />
         </div>
       )}
 
-      <div className="mb-6 rounded border border-gray-200 p-4">
-        <h2 className="mb-3 text-sm font-semibold">Payment history</h2>
+      <div className={`mb-6 ${cardClass}`}>
+        <h2 className="mb-3 text-sm font-semibold text-foreground">Payment history</h2>
         {payments && payments.length > 0 ? (
           <ul className="space-y-2 text-sm">
             {payments.map((payment) => (
               <li key={payment.id} className="flex items-center justify-between">
-                <span>
+                <span className="text-foreground">
                   {payment.due_date} · ${payment.amount_paid}
                   {payment.paid_date ? ` · paid ${payment.paid_date}` : ""}
                   {payment.notes ? ` · ${payment.notes}` : ""}
                 </span>
-                <span
-                  className={
-                    payment.status === "paid"
-                      ? "rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700"
-                      : "rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-800"
-                  }
-                >
+                <Badge variant={payment.status === "paid" ? "success" : "warning"}>
                   {payment.status}
-                </span>
+                </Badge>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-sm text-gray-500">No payments logged yet.</p>
+          <p className="text-sm text-muted">No payments logged yet.</p>
         )}
       </div>
 

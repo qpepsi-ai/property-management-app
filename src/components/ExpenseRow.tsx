@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { cardClass } from "@/lib/ui";
 
 type Expense = {
   id: string;
@@ -34,11 +35,11 @@ export default function ExpenseRow({ expense }: { expense: Expense }) {
   }
 
   return (
-    <li className="rounded border border-gray-200 px-4 py-3 text-sm">
+    <li className={`text-sm ${cardClass}`}>
       <div className="flex items-center justify-between">
         <span>
-          <span className="font-medium">${expense.amount}</span>{" "}
-          <span className="text-gray-500">
+          <span className="font-medium text-foreground">${expense.amount}</span>{" "}
+          <span className="text-muted">
             · {expense.category} · {expense.date}
             {expense.description ? ` · ${expense.description}` : ""}
           </span>
@@ -46,12 +47,12 @@ export default function ExpenseRow({ expense }: { expense: Expense }) {
         <button
           onClick={handleDelete}
           disabled={status === "saving"}
-          className="text-xs text-red-600 hover:underline disabled:opacity-50"
+          className="text-xs text-danger-fg hover:underline disabled:opacity-50"
         >
           Delete
         </button>
       </div>
-      {status === "error" && <p className="mt-1 text-xs text-red-600">{errorMessage}</p>}
+      {status === "error" && <p className="mt-1 text-xs text-danger-fg">{errorMessage}</p>}
     </li>
   );
 }

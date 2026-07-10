@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { inputClass, labelClass, buttonClass, cardClass } from "@/lib/ui";
 
 const PRIORITIES = ["low", "medium", "high"] as const;
 
@@ -73,15 +74,15 @@ export default function NewMaintenanceRequestForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 rounded border border-gray-200 p-4">
-      <h2 className="text-sm font-semibold">New maintenance request</h2>
+    <form onSubmit={handleSubmit} className={`space-y-3 ${cardClass}`}>
+      <h2 className="text-sm font-semibold text-foreground">New maintenance request</h2>
 
-      <label className="block text-xs text-gray-500">
+      <label className={labelClass}>
         Unit
         <select
           value={unitId}
           onChange={(e) => setUnitId(e.target.value)}
-          className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm text-black"
+          className={`mt-1 ${inputClass}`}
         >
           {units.map((u) => (
             <option key={u.id} value={u.id}>
@@ -91,18 +92,18 @@ export default function NewMaintenanceRequestForm({
         </select>
       </label>
 
-      <label className="block text-xs text-gray-500">
+      <label className={labelClass}>
         Description
         <textarea
           required
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm text-black"
+          className={`mt-1 ${inputClass}`}
           rows={2}
         />
       </label>
 
-      <div className="text-xs text-gray-500">
+      <div className={labelClass}>
         Priority
         <div className="mt-1 flex gap-2">
           {PRIORITIES.map((p) => (
@@ -112,8 +113,8 @@ export default function NewMaintenanceRequestForm({
               onClick={() => setPriority(p)}
               className={
                 priority === p
-                  ? "rounded-full bg-black px-3 py-1 text-xs text-white"
-                  : "rounded-full border border-gray-300 px-3 py-1 text-xs text-black"
+                  ? "rounded-full bg-accent px-3 py-1 text-xs text-accent-foreground"
+                  : "rounded-full border border-border px-3 py-1 text-xs text-foreground"
               }
             >
               {p}
@@ -123,46 +124,46 @@ export default function NewMaintenanceRequestForm({
       </div>
 
       <div className="flex gap-3">
-        <label className="flex-1 text-xs text-gray-500">
+        <label className={`flex-1 ${labelClass}`}>
           Date reported
           <input
             type="date"
             required
             value={dateReported}
             onChange={(e) => setDateReported(e.target.value)}
-            className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm text-black"
+            className={`mt-1 ${inputClass}`}
           />
         </label>
-        <label className="flex-1 text-xs text-gray-500">
+        <label className={`flex-1 ${labelClass}`}>
           Vendor (optional)
           <input
             type="text"
             value={vendor}
             onChange={(e) => setVendor(e.target.value)}
-            className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm text-black"
+            className={`mt-1 ${inputClass}`}
           />
         </label>
       </div>
 
-      <label className="block text-xs text-gray-500">
+      <label className={labelClass}>
         Photos (optional)
         <input
           type="file"
           accept="image/*"
           multiple
           onChange={(e) => setPhotos(e.target.files)}
-          className="mt-1 w-full text-sm text-black"
+          className="mt-1 w-full text-sm text-foreground"
         />
       </label>
 
       <button
         type="submit"
         disabled={status === "saving" || !unitId}
-        className="rounded bg-black px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
+        className={buttonClass("primary")}
       >
         {status === "saving" ? "Saving…" : "Add request"}
       </button>
-      {status === "error" && <p className="text-sm text-red-600">{errorMessage}</p>}
+      {status === "error" && <p className="text-sm text-danger-fg">{errorMessage}</p>}
     </form>
   );
 }

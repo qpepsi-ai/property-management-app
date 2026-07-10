@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { buttonClass } from "@/lib/ui";
 
 export default function EndLeaseButton({ leaseId }: { leaseId: string }) {
   const router = useRouter();
@@ -32,14 +33,10 @@ export default function EndLeaseButton({ leaseId }: { leaseId: string }) {
 
   return (
     <div>
-      <button
-        onClick={handleEndLease}
-        disabled={status === "saving"}
-        className="rounded border border-red-300 px-3 py-2 text-sm text-red-600 disabled:opacity-50"
-      >
+      <button onClick={handleEndLease} disabled={status === "saving"} className={buttonClass("danger")}>
         {status === "saving" ? "Ending…" : "End lease"}
       </button>
-      {status === "error" && <p className="mt-2 text-sm text-red-600">{errorMessage}</p>}
+      {status === "error" && <p className="mt-2 text-sm text-danger-fg">{errorMessage}</p>}
     </div>
   );
 }

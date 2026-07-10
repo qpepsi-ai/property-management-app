@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { cardClass, pagePanelClass } from "@/lib/ui";
+import Badge from "@/components/ui/Badge";
 
-const PRIORITY_CLASS: Record<string, string> = {
-  low: "bg-gray-100 text-gray-600",
-  medium: "bg-amber-100 text-amber-800",
-  high: "bg-red-100 text-red-700",
+const PRIORITY_VARIANT: Record<string, "neutral" | "warning" | "danger"> = {
+  low: "neutral",
+  medium: "warning",
+  high: "danger",
 };
 
 export default async function MaintenancePage() {
@@ -34,7 +36,7 @@ export default async function MaintenancePage() {
 
   function renderList(items: typeof open) {
     return (
-      <ul className="space-y-2">
+      <ul className="space-y-3">
         {items.map((r) => {
           const unit = Array.isArray(r.unit) ? r.unit[0] : r.unit;
           const property = Array.isArray(unit?.property) ? unit.property[0] : unit?.property;
@@ -42,20 +44,18 @@ export default async function MaintenancePage() {
             <li key={r.id}>
               <Link
                 href={`/properties/${property?.id ?? ""}`}
-                className="flex items-start justify-between rounded border border-gray-200 px-4 py-3 text-sm hover:border-gray-400"
+                className={`flex items-start justify-between ${cardClass} transition-shadow hover:shadow-md`}
               >
                 <span>
-                  <span className="font-medium">
+                  <span className="font-medium text-foreground">
                     {unit?.label}, {property?.address}
                   </span>
                   <br />
-                  <span className="text-gray-500">
+                  <span className="text-muted">
                     {r.description} · reported {r.date_reported}
                   </span>
                 </span>
-                <span className={`rounded-full px-2 py-0.5 text-xs ${PRIORITY_CLASS[r.priority]}`}>
-                  {r.priority}
-                </span>
+                <Badge variant={PRIORITY_VARIANT[r.priority]}>{r.priority}</Badge>
               </Link>
             </li>
           );
@@ -65,26 +65,28 @@ export default async function MaintenancePage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10">
-      <Link href="/" className="mb-6 inline-block text-sm text-gray-500 hover:underline">
+    <div className={`mx-auto w-full max-w-3xl px-6 py-14 ${pagePanelClass}`}>
+      <Link href="/dashboard" className="mb-8 inline-block text-sm text-muted hover:text-accent">
         ← All properties
       </Link>
 
-      <h1 className="mb-1 text-lg font-semibold">Maintenance tracking</h1>
+      <h1 className="mb-1 text-3xl font-semibold tracking-tight text-foreground">Maintenance tracking</h1>
       {avgResolveDays !== null && (
-        <p className="mb-6 text-sm text-gray-500">
+        <p className="mb-8 text-sm text-muted">
           Average resolve time: {avgResolveDays} day{avgResolveDays === 1 ? "" : "s"}
         </p>
       )}
 
-      <h2 className="mb-3 text-sm font-semibold">Open ({open.length})</h2>
-      {open.length > 0 ? renderList(open) : <p className="text-sm text-gray-500">No open requests.</p>}
+      <h2 className="mb-4 text-xl font-semibold text-foreground">Open ({open.length})</h2>
+      {open.length > 0 ? renderList(open) : <p className="text-sm text-muted">No open requests.</p>}
 
-      <h2 className="mt-8 mb-3 text-sm font-semibold">Resolved ({resolved.length})</h2>
+      <h2 className="mt-10 mb-4 text-xl font-semibold text-foreground">
+        Resolved ({resolved.length})
+      </h2>
       {resolved.length > 0 ? (
         renderList(resolved)
       ) : (
-        <p className="text-sm text-gray-500">No resolved requests yet.</p>
+        <p className="text-sm text-muted">No resolved requests yet.</p>
       )}
     </div>
   );

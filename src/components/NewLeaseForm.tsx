@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { inputClass, labelClass, buttonClass, cardClass } from "@/lib/ui";
 
 type Tenant = { id: string; name: string };
 
@@ -81,11 +82,11 @@ export default function NewLeaseForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="rounded border border-gray-200 p-4">
-        <h2 className="mb-3 text-sm font-semibold">Tenant</h2>
+      <div className={cardClass}>
+        <h2 className="mb-3 text-sm font-semibold text-foreground">Tenant</h2>
 
         {existingTenants.length > 0 && (
-          <div className="mb-3 flex gap-4 text-sm">
+          <div className="mb-3 flex gap-4 text-sm text-foreground">
             <label className="flex items-center gap-1.5">
               <input
                 type="radio"
@@ -109,7 +110,7 @@ export default function NewLeaseForm({
           <select
             value={tenantId}
             onChange={(e) => setTenantId(e.target.value)}
-            className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
+            className={inputClass}
           >
             {existingTenants.map((t) => (
               <option key={t.id} value={t.id}>
@@ -125,7 +126,7 @@ export default function NewLeaseForm({
               placeholder="Tenant name"
               value={tenantName}
               onChange={(e) => setTenantName(e.target.value)}
-              className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
+              className={inputClass}
             />
             <div className="flex gap-3">
               <input
@@ -133,47 +134,47 @@ export default function NewLeaseForm({
                 placeholder="Email"
                 value={tenantEmail}
                 onChange={(e) => setTenantEmail(e.target.value)}
-                className="flex-1 rounded border border-gray-300 px-3 py-2 text-sm"
+                className={`flex-1 ${inputClass}`}
               />
               <input
                 type="tel"
                 placeholder="Phone"
                 value={tenantPhone}
                 onChange={(e) => setTenantPhone(e.target.value)}
-                className="flex-1 rounded border border-gray-300 px-3 py-2 text-sm"
+                className={`flex-1 ${inputClass}`}
               />
             </div>
           </div>
         )}
       </div>
 
-      <div className="rounded border border-gray-200 p-4">
-        <h2 className="mb-3 text-sm font-semibold">Lease terms</h2>
+      <div className={cardClass}>
+        <h2 className="mb-3 text-sm font-semibold text-foreground">Lease terms</h2>
         <div className="space-y-3">
           <div className="flex gap-3">
-            <label className="flex-1 text-xs text-gray-500">
+            <label className={`flex-1 ${labelClass}`}>
               Start date
               <input
                 type="date"
                 required
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm text-black"
+                className={`mt-1 ${inputClass}`}
               />
             </label>
-            <label className="flex-1 text-xs text-gray-500">
+            <label className={`flex-1 ${labelClass}`}>
               End date
               <input
                 type="date"
                 required
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm text-black"
+                className={`mt-1 ${inputClass}`}
               />
             </label>
           </div>
           <div className="flex gap-3">
-            <label className="flex-1 text-xs text-gray-500">
+            <label className={`flex-1 ${labelClass}`}>
               Monthly rent
               <input
                 type="number"
@@ -182,10 +183,10 @@ export default function NewLeaseForm({
                 step="0.01"
                 value={rentAmount}
                 onChange={(e) => setRentAmount(e.target.value)}
-                className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm text-black"
+                className={`mt-1 ${inputClass}`}
               />
             </label>
-            <label className="flex-1 text-xs text-gray-500">
+            <label className={`flex-1 ${labelClass}`}>
               Security deposit
               <input
                 type="number"
@@ -193,22 +194,18 @@ export default function NewLeaseForm({
                 step="0.01"
                 value={securityDeposit}
                 onChange={(e) => setSecurityDeposit(e.target.value)}
-                className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm text-black"
+                className={`mt-1 ${inputClass}`}
               />
             </label>
           </div>
         </div>
       </div>
 
-      <button
-        type="submit"
-        disabled={status === "saving"}
-        className="rounded bg-black px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
-      >
+      <button type="submit" disabled={status === "saving"} className={buttonClass("primary")}>
         {status === "saving" ? "Saving…" : "Create lease"}
       </button>
       {status === "error" && (
-        <p className="text-sm text-red-600">{errorMessage}</p>
+        <p className="text-sm text-danger-fg">{errorMessage}</p>
       )}
     </form>
   );

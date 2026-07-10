@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { cardClass, pagePanelClass } from "@/lib/ui";
+import Badge from "@/components/ui/Badge";
 
 function monthRange(date = new Date()) {
   const start = new Date(date.getFullYear(), date.getMonth(), 1);
@@ -33,17 +35,17 @@ export default async function RentTrackingPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10">
-      <Link href="/" className="mb-6 inline-block text-sm text-gray-500 hover:underline">
+    <div className={`mx-auto w-full max-w-3xl px-6 py-14 ${pagePanelClass}`}>
+      <Link href="/dashboard" className="mb-8 inline-block text-sm text-muted hover:text-accent">
         ← All properties
       </Link>
 
-      <h1 className="mb-6 text-lg font-semibold">
+      <h1 className="mb-8 text-3xl font-semibold tracking-tight text-foreground">
         Rent tracking · {new Date().toLocaleString("en-US", { month: "long", year: "numeric" })}
       </h1>
 
       {leases && leases.length > 0 ? (
-        <ul className="space-y-2">
+        <ul className="space-y-3">
           {leases.map((lease) => {
             const unit = Array.isArray(lease.unit) ? lease.unit[0] : lease.unit;
             const property = Array.isArray(unit?.property) ? unit.property[0] : unit?.property;
@@ -51,35 +53,29 @@ export default async function RentTrackingPage() {
             const paid = paidByLease.get(lease.id) ?? 0;
             const due = Number(lease.rent_amount);
             const statusLabel = paid >= due ? "paid" : paid > 0 ? "partial" : "unpaid";
-            const statusClass =
-              statusLabel === "paid"
-                ? "bg-green-100 text-green-700"
-                : statusLabel === "partial"
-                  ? "bg-amber-100 text-amber-800"
-                  : "bg-red-100 text-red-700";
+            const statusVariant =
+              statusLabel === "paid" ? "success" : statusLabel === "partial" ? "warning" : "danger";
 
             return (
               <li key={lease.id}>
                 <Link
                   href={`/leases/${lease.id}`}
-                  className="flex items-center justify-between rounded border border-gray-200 px-4 py-3 text-sm hover:border-gray-400"
+                  className={`flex items-center justify-between ${cardClass} transition-shadow hover:shadow-md`}
                 >
                   <span>
-                    <span className="font-medium">{tenant?.name}</span>{" "}
-                    <span className="text-gray-500">
+                    <span className="font-medium text-foreground">{tenant?.name}</span>{" "}
+                    <span className="text-muted">
                       · {unit?.label}, {property?.address} · ${paid} / ${due}
                     </span>
                   </span>
-                  <span className={`rounded-full px-2 py-0.5 text-xs ${statusClass}`}>
-                    {statusLabel}
-                  </span>
+                  <Badge variant={statusVariant}>{statusLabel}</Badge>
                 </Link>
               </li>
             );
           })}
         </ul>
       ) : (
-        <p className="text-sm text-gray-500">No active leases.</p>
+        <p className="text-sm text-muted">No active leases.</p>
       )}
     </div>
   );

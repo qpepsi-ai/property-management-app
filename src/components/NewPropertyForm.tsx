@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { inputClass, buttonClass, cardClass } from "@/lib/ui";
 
 const PROPERTY_TYPES = ["single-family", "duplex", "multi-unit"] as const;
 
@@ -41,15 +42,15 @@ export default function NewPropertyForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 rounded border border-gray-200 p-4">
-      <h2 className="text-sm font-semibold">Add a property</h2>
+    <form onSubmit={handleSubmit} className={`space-y-3 ${cardClass}`}>
+      <h2 className="text-sm font-semibold text-foreground">Add a property</h2>
       <input
         type="text"
         required
         placeholder="Address"
         value={address}
         onChange={(e) => setAddress(e.target.value)}
-        className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
+        className={inputClass}
       />
       <div className="flex gap-3">
         <select
@@ -57,7 +58,7 @@ export default function NewPropertyForm() {
           onChange={(e) =>
             setType(e.target.value as (typeof PROPERTY_TYPES)[number])
           }
-          className="flex-1 rounded border border-gray-300 px-3 py-2 text-sm"
+          className={`flex-1 ${inputClass}`}
         >
           {PROPERTY_TYPES.map((t) => (
             <option key={t} value={t}>
@@ -69,18 +70,14 @@ export default function NewPropertyForm() {
           type="date"
           value={purchaseDate}
           onChange={(e) => setPurchaseDate(e.target.value)}
-          className="flex-1 rounded border border-gray-300 px-3 py-2 text-sm"
+          className={`flex-1 ${inputClass}`}
         />
       </div>
-      <button
-        type="submit"
-        disabled={status === "saving"}
-        className="rounded bg-black px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
-      >
+      <button type="submit" disabled={status === "saving"} className={buttonClass("primary")}>
         {status === "saving" ? "Saving…" : "Add property"}
       </button>
       {status === "error" && (
-        <p className="text-sm text-red-600">{errorMessage}</p>
+        <p className="text-sm text-danger-fg">{errorMessage}</p>
       )}
     </form>
   );

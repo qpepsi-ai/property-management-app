@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import NewLeaseForm from "@/components/NewLeaseForm";
+import { pagePanelClass } from "@/lib/ui";
 
 export default async function NewLeasePage({
   params,
@@ -27,15 +28,15 @@ export default async function NewLeasePage({
     .order("name");
 
   return (
-    <div className="mx-auto max-w-xl px-4 py-10">
+    <div className={`mx-auto w-full max-w-2xl px-6 py-14 ${pagePanelClass}`}>
       <Link
         href={`/properties/${propertyId}`}
-        className="mb-6 inline-block text-sm text-gray-500 hover:underline"
+        className="mb-8 inline-block text-sm text-muted hover:text-accent"
       >
         ← Back to property
       </Link>
 
-      <h1 className="mb-6 text-lg font-semibold">New lease · {unit.label}</h1>
+      <h1 className="mb-8 text-3xl font-semibold tracking-tight text-foreground">New lease · {unit.label}</h1>
 
       <NewLeaseForm
         unitId={unit.id}

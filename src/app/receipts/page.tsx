@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import ReceiptFilterBar from "@/components/ReceiptFilterBar";
+import { buttonClass, pagePanelClass } from "@/lib/ui";
+import Badge from "@/components/ui/Badge";
 
 function monthRange(month: string) {
   const [year, m] = month.split("-").map(Number);
@@ -58,23 +60,20 @@ export default async function ReceiptsPage({
   const scanButtonHref =
     properties && properties.length === 1
       ? `/properties/${properties[0].id}#add-expense`
-      : "/";
+      : "/dashboard";
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
-      <Link href="/" className="mb-6 inline-block text-sm text-gray-500 hover:underline">
+    <div className={`mx-auto w-full max-w-4xl px-6 py-14 ${pagePanelClass}`}>
+      <Link href="/dashboard" className="mb-8 inline-block text-sm text-muted hover:text-accent">
         ← All properties
       </Link>
 
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-semibold">Receipts</h1>
-          <p className="text-sm text-gray-500">{totalScans ?? 0} scanned</p>
+          <h1 className="text-3xl font-semibold tracking-tight text-foreground">Receipts</h1>
+          <p className="text-sm text-muted">{totalScans ?? 0} scanned</p>
         </div>
-        <Link
-          href={scanButtonHref}
-          className="rounded bg-black px-3 py-2 text-sm font-medium text-white"
-        >
+        <Link href={scanButtonHref} className={buttonClass("primary")}>
           Scan receipt
         </Link>
       </div>
@@ -82,7 +81,7 @@ export default async function ReceiptsPage({
       <ReceiptFilterBar properties={properties ?? []} />
 
       {expenses && expenses.length > 0 ? (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
           {expenses.map((expense) => {
             const propertyInfo = Array.isArray(expense.property)
               ? expense.property[0]
@@ -94,25 +93,27 @@ export default async function ReceiptsPage({
             const needsReview = scan?.confidence === "low";
 
             const card = (
-              <div className="rounded border border-gray-200 p-2 text-xs hover:border-gray-400">
-                <div className="mb-2 flex aspect-square items-center justify-center overflow-hidden rounded bg-gray-100">
+              <div className="rounded-2xl bg-surface p-3 text-xs shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-shadow hover:shadow-md">
+                <div className="mb-2 flex aspect-square items-center justify-center overflow-hidden rounded-md bg-neutral-bg">
                   {imageUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={imageUrl} alt="" className="h-full w-full object-cover" />
                   ) : (
-                    <span className="text-2xl text-gray-400">🧾</span>
+                    <span className="text-2xl text-muted">🧾</span>
                   )}
                 </div>
                 {needsReview && (
-                  <span className="mb-1 inline-block rounded-full bg-amber-100 px-2 py-0.5 text-amber-800">
-                    Needs review
-                  </span>
+                  <div className="mb-1">
+                    <Badge variant="warning">Needs review</Badge>
+                  </div>
                 )}
-                <p className="truncate font-medium">{expense.description ?? expense.category}</p>
-                <p className="truncate text-gray-500">
+                <p className="truncate font-medium text-foreground">
+                  {expense.description ?? expense.category}
+                </p>
+                <p className="truncate text-muted">
                   {propertyInfo?.address} · ${expense.amount}
                 </p>
-                <p className="text-gray-400">{expense.date}</p>
+                <p className="text-muted">{expense.date}</p>
               </div>
             );
 
@@ -124,7 +125,7 @@ export default async function ReceiptsPage({
           })}
         </div>
       ) : (
-        <p className="text-sm text-gray-500">No expenses match these filters.</p>
+        <p className="text-sm text-muted">No expenses match these filters.</p>
       )}
     </div>
   );

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { inputClass, buttonClass } from "@/lib/ui";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -32,13 +33,14 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
+    <div className="flex flex-1 items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        <h1 className="mb-6 text-xl font-semibold">Sign in</h1>
+        <h1 className="mb-1 text-2xl font-semibold tracking-tight text-foreground">Property Manager</h1>
+        <p className="mb-6 text-sm text-muted">Sign in with a magic link</p>
 
         {status === "sent" ? (
-          <p className="text-sm text-gray-600">
-            Check <span className="font-medium">{email}</span> for a sign-in
+          <p className="text-sm text-muted">
+            Check <span className="font-medium text-foreground">{email}</span> for a sign-in
             link.
           </p>
         ) : (
@@ -49,17 +51,17 @@ export default function LoginPage() {
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
+              className={inputClass}
             />
             <button
               type="submit"
               disabled={status === "sending"}
-              className="w-full rounded bg-black px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
+              className={`w-full ${buttonClass("primary")}`}
             >
               {status === "sending" ? "Sending…" : "Send magic link"}
             </button>
             {status === "error" && (
-              <p className="text-sm text-red-600">{errorMessage}</p>
+              <p className="text-sm text-danger-fg">{errorMessage}</p>
             )}
           </form>
         )}

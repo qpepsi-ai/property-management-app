@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import ExportCsvButton from "@/components/ExportCsvButton";
+import IncomeExpenseChart from "@/components/IncomeExpenseChart";
+import { cardClass, pagePanelClass } from "@/lib/ui";
 
 export default async function ReportsPage() {
   const supabase = await createClient();
@@ -25,53 +27,74 @@ export default async function ReportsPage() {
   );
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10">
-      <Link href="/" className="mb-6 inline-block text-sm text-gray-500 hover:underline">
+    <div className={`mx-auto w-full max-w-3xl px-6 py-14 ${pagePanelClass}`}>
+      <Link href="/dashboard" className="mb-8 inline-block text-sm text-muted hover:text-accent">
         ← All properties
       </Link>
 
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-lg font-semibold">Reports · {year} YTD</h1>
+      <div className="mb-8 flex items-center justify-between">
+        <h1 className="text-3xl font-semibold tracking-tight text-foreground">Reports · {year} YTD</h1>
         {rows && rows.length > 0 && <ExportCsvButton rows={rows} year={year} />}
       </div>
 
       {rows && rows.length > 0 ? (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-gray-200 text-left text-gray-500">
-                <th className="py-2 pr-4">Property</th>
-                <th className="py-2 pr-4 text-right">Income</th>
-                <th className="py-2 pr-4 text-right">Expenses</th>
-                <th className="py-2 text-right">Net</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r) => (
-                <tr key={r.property_id} className="border-b border-gray-100">
-                  <td className="py-2 pr-4">
-                    <Link href={`/properties/${r.property_id}`} className="hover:underline">
-                      {r.address}
-                    </Link>
-                  </td>
-                  <td className="py-2 pr-4 text-right">${r.ytd_income}</td>
-                  <td className="py-2 pr-4 text-right">${r.ytd_expenses}</td>
-                  <td className="py-2 text-right font-medium">${r.net}</td>
+        <>
+          <div className="mb-6 grid grid-cols-3 gap-4">
+            <div className={cardClass}>
+              <p className="text-xs text-muted">Total income</p>
+              <p className="mt-1 text-xl font-semibold text-foreground">${totals.income}</p>
+            </div>
+            <div className={cardClass}>
+              <p className="text-xs text-muted">Total expenses</p>
+              <p className="mt-1 text-xl font-semibold text-foreground">${totals.expenses}</p>
+            </div>
+            <div className={cardClass}>
+              <p className="text-xs text-muted">Net</p>
+              <p className="mt-1 text-xl font-semibold text-foreground">${totals.net}</p>
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <IncomeExpenseChart rows={rows} />
+          </div>
+
+          <div className={`overflow-x-auto ${cardClass}`}>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border text-left text-muted">
+                  <th className="py-2 pr-4">Property</th>
+                  <th className="py-2 pr-4 text-right">Income</th>
+                  <th className="py-2 pr-4 text-right">Expenses</th>
+                  <th className="py-2 text-right">Net</th>
                 </tr>
-              ))}
-            </tbody>
-            <tfoot>
-              <tr className="font-medium">
-                <td className="py-2 pr-4">Total</td>
-                <td className="py-2 pr-4 text-right">${totals.income}</td>
-                <td className="py-2 pr-4 text-right">${totals.expenses}</td>
-                <td className="py-2 text-right">${totals.net}</td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {rows.map((r) => (
+                  <tr key={r.property_id} className="border-b border-border/60 text-foreground">
+                    <td className="py-2 pr-4">
+                      <Link href={`/properties/${r.property_id}`} className="hover:text-accent hover:underline">
+                        {r.address}
+                      </Link>
+                    </td>
+                    <td className="py-2 pr-4 text-right">${r.ytd_income}</td>
+                    <td className="py-2 pr-4 text-right">${r.ytd_expenses}</td>
+                    <td className="py-2 text-right font-medium">${r.net}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr className="font-medium text-foreground">
+                  <td className="py-2 pr-4">Total</td>
+                  <td className="py-2 pr-4 text-right">${totals.income}</td>
+                  <td className="py-2 pr-4 text-right">${totals.expenses}</td>
+                  <td className="py-2 text-right">${totals.net}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </>
       ) : (
-        <p className="text-sm text-gray-500">No properties to report on.</p>
+        <p className="text-sm text-muted">No properties to report on.</p>
       )}
     </div>
   );

@@ -8,6 +8,7 @@ import AddExpenseForm from "@/components/AddExpenseForm";
 import ExpenseRow from "@/components/ExpenseRow";
 import NewMaintenanceRequestForm from "@/components/NewMaintenanceRequestForm";
 import MaintenanceRequestRow from "@/components/MaintenanceRequestRow";
+import { pagePanelClass } from "@/lib/ui";
 
 export default async function PropertyDetailPage({
   params,
@@ -56,16 +57,16 @@ export default async function PropertyDetailPage({
   const unitLabelById = new Map(units?.map((u) => [u.id, u.label]));
 
   return (
-    <div className="mx-auto max-w-xl px-4 py-10">
-      <Link href="/" className="mb-6 inline-block text-sm text-gray-500 hover:underline">
+    <div className={`mx-auto w-full max-w-2xl px-6 py-14 ${pagePanelClass}`}>
+      <Link href="/dashboard" className="mb-8 inline-block text-sm text-muted hover:text-accent">
         ← All properties
       </Link>
 
       <EditPropertyForm property={property} />
 
-      <h2 className="mb-3 text-sm font-semibold">Units</h2>
+      <h2 className="mb-4 text-xl font-semibold text-foreground">Units</h2>
       {units && units.length > 0 ? (
-        <ul className="mb-8 space-y-2">
+        <ul className="mb-10 space-y-3">
           {units.map((unit) => (
             <UnitRow
               key={unit.id}
@@ -76,39 +77,64 @@ export default async function PropertyDetailPage({
           ))}
         </ul>
       ) : (
-        <p className="mb-8 text-sm text-gray-500">No units yet.</p>
+        <p className="mb-10 text-sm text-muted">No units yet.</p>
       )}
 
       <AddUnitForm propertyId={property.id} />
 
-      <h2 className="mt-10 mb-3 text-sm font-semibold">Expenses</h2>
+      <h2 className="mt-14 mb-4 text-xl font-semibold text-foreground">Expenses</h2>
       {expenses && expenses.length > 0 ? (
-        <ul className="mb-8 space-y-2">
-          {expenses.map((expense) => (
-            <ExpenseRow key={expense.id} expense={expense} />
-          ))}
-        </ul>
+        <details className="mb-10 rounded-2xl border border-border p-4">
+          <summary className="cursor-pointer text-sm text-foreground marker:text-accent">
+            <span className="font-medium">${expenses[0].amount}</span>{" "}
+            <span className="text-muted">
+              · {expenses[0].category} · {expenses[0].date}
+              {expenses[0].description ? ` · ${expenses[0].description}` : ""}
+            </span>
+            {expenses.length > 1 && (
+              <span className="ml-2 text-accent">+{expenses.length - 1} more</span>
+            )}
+          </summary>
+          <ul className="mt-4 space-y-3">
+            {expenses.map((expense) => (
+              <ExpenseRow key={expense.id} expense={expense} />
+            ))}
+          </ul>
+        </details>
       ) : (
-        <p className="mb-8 text-sm text-gray-500">No expenses yet.</p>
+        <p className="mb-10 text-sm text-muted">No expenses yet.</p>
       )}
 
       <div id="add-expense">
         <AddExpenseForm propertyId={property.id} />
       </div>
 
-      <h2 className="mt-10 mb-3 text-sm font-semibold">Maintenance</h2>
+      <h2 className="mt-14 mb-4 text-xl font-semibold text-foreground">Maintenance</h2>
       {maintenanceRequests && maintenanceRequests.length > 0 ? (
-        <ul className="mb-8 space-y-2">
-          {maintenanceRequests.map((request) => (
-            <MaintenanceRequestRow
-              key={request.id}
-              request={request}
-              unitLabel={unitLabelById.get(request.unit_id)}
-            />
-          ))}
-        </ul>
+        <details className="mb-10 rounded-2xl border border-border p-4">
+          <summary className="cursor-pointer text-sm text-foreground marker:text-accent">
+            <span className="font-medium">
+              {unitLabelById.get(maintenanceRequests[0].unit_id)}
+            </span>{" "}
+            <span className="text-muted">
+              · {maintenanceRequests[0].description} · {maintenanceRequests[0].status}
+            </span>
+            {maintenanceRequests.length > 1 && (
+              <span className="ml-2 text-accent">+{maintenanceRequests.length - 1} more</span>
+            )}
+          </summary>
+          <ul className="mt-4 space-y-3">
+            {maintenanceRequests.map((request) => (
+              <MaintenanceRequestRow
+                key={request.id}
+                request={request}
+                unitLabel={unitLabelById.get(request.unit_id)}
+              />
+            ))}
+          </ul>
+        </details>
       ) : (
-        <p className="mb-8 text-sm text-gray-500">No maintenance requests yet.</p>
+        <p className="mb-10 text-sm text-muted">No maintenance requests yet.</p>
       )}
 
       {units && units.length > 0 && (

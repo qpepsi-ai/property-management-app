@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { EXPENSE_CATEGORIES as CATEGORIES } from "@/lib/expense-categories";
+import { inputClass, labelClass, buttonClass, cardClass } from "@/lib/ui";
 
 function today() {
   return new Date().toISOString().slice(0, 10);
@@ -128,45 +129,45 @@ export default function AddExpenseForm({ propertyId }: { propertyId: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 rounded border border-gray-200 p-4">
-      <h2 className="text-sm font-semibold">Add an expense</h2>
+    <form onSubmit={handleSubmit} className={`space-y-3 ${cardClass}`}>
+      <h2 className="text-sm font-semibold text-foreground">Add an expense</h2>
 
-      <label className="block text-xs text-gray-500">
+      <label className={labelClass}>
         Scan a receipt (optional)
         <input
           ref={fileInputRef}
           type="file"
           accept="image/*"
           onChange={handleFileSelected}
-          className="mt-1 w-full text-sm text-black"
+          className="mt-1 w-full text-sm text-foreground"
         />
       </label>
-      {scanState === "scanning" && <p className="text-xs text-gray-500">Scanning receipt…</p>}
+      {scanState === "scanning" && <p className="text-xs text-muted">Scanning receipt…</p>}
       {scanState === "scanned" && (
-        <p className="text-xs text-green-700">
+        <p className="text-xs text-success-fg">
           Scanned — fields pre-filled below (confidence: {confidence ?? "unknown"}). Review and
           adjust as needed.
         </p>
       )}
-      {scanState === "error" && <p className="text-xs text-red-600">{scanError}</p>}
+      {scanState === "error" && <p className="text-xs text-danger-fg">{scanError}</p>}
 
       <div className="flex gap-3">
-        <label className="flex-1 text-xs text-gray-500">
+        <label className={`flex-1 ${labelClass}`}>
           Date
           <input
             type="date"
             required
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm text-black"
+            className={`mt-1 ${inputClass}`}
           />
         </label>
-        <label className="flex-1 text-xs text-gray-500">
+        <label className={`flex-1 ${labelClass}`}>
           Category
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm text-black"
+            className={`mt-1 ${inputClass}`}
           >
             {CATEGORIES.map((c) => (
               <option key={c} value={c}>
@@ -176,7 +177,7 @@ export default function AddExpenseForm({ propertyId }: { propertyId: string }) {
           </select>
         </label>
       </div>
-      <label className="block text-xs text-gray-500">
+      <label className={labelClass}>
         Amount
         <input
           type="number"
@@ -185,26 +186,22 @@ export default function AddExpenseForm({ propertyId }: { propertyId: string }) {
           step="0.01"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm text-black"
+          className={`mt-1 ${inputClass}`}
         />
       </label>
-      <label className="block text-xs text-gray-500">
+      <label className={labelClass}>
         Description
         <input
           type="text"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm text-black"
+          className={`mt-1 ${inputClass}`}
         />
       </label>
-      <button
-        type="submit"
-        disabled={status === "saving"}
-        className="rounded bg-black px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
-      >
+      <button type="submit" disabled={status === "saving"} className={buttonClass("primary")}>
         {status === "saving" ? "Saving…" : "Add expense"}
       </button>
-      {status === "error" && <p className="text-sm text-red-600">{errorMessage}</p>}
+      {status === "error" && <p className="text-sm text-danger-fg">{errorMessage}</p>}
     </form>
   );
 }

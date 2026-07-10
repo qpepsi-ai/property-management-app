@@ -18,6 +18,16 @@ export default async function NavBar() {
 
   if (!user) return null;
 
+  const { data: ownedGrant } = await supabase
+    .from("property_access")
+    .select("id")
+    .eq("role", "owner")
+    .limit(1)
+    .maybeSingle();
+  const isOwner = Boolean(ownedGrant);
+
+  const links = isOwner ? [...LINKS, { href: "/access", label: "Access" }] : LINKS;
+
   return (
     <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-4">
@@ -26,7 +36,7 @@ export default async function NavBar() {
             Property Manager
           </Link>
           <nav className="flex flex-wrap gap-x-5 gap-y-1">
-            {LINKS.slice(1).map((link) => (
+            {links.slice(1).map((link) => (
               <Link
                 key={link.href}
                 href={link.href}

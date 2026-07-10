@@ -9,9 +9,7 @@ import ExpenseRow from "@/components/ExpenseRow";
 import NewMaintenanceRequestForm from "@/components/NewMaintenanceRequestForm";
 import MaintenanceRequestRow from "@/components/MaintenanceRequestRow";
 import PropertyMap from "@/components/PropertyMapLoader";
-import AccessList from "@/components/AccessList";
-import InviteAccessForm from "@/components/InviteAccessForm";
-import { cardClass, pagePanelClass } from "@/lib/ui";
+import { pagePanelClass } from "@/lib/ui";
 
 export default async function PropertyDetailPage({
   params,
@@ -58,27 +56,6 @@ export default async function PropertyDetailPage({
     .order("date_reported", { ascending: false });
 
   const unitLabelById = new Map(units?.map((u) => [u.id, u.label]));
-
-  const { data: viewerRole } = await supabase.rpc("user_property_role", {
-    p_property_id: id,
-  });
-  const isOwner = viewerRole === "owner";
-
-  let accessGrants: {
-    id: string;
-    role: "owner" | "co-owner" | "accountant";
-    user: { id: string; email: string; name: string | null } | null;
-  }[] = [];
-  if (isOwner) {
-    const { data } = await supabase
-      .from("property_access")
-      .select("id, role, user:users(id, email, name)")
-      .eq("property_id", id);
-    accessGrants = (data ?? []).map((g) => ({
-      ...g,
-      user: Array.isArray(g.user) ? g.user[0] : g.user,
-    }));
-  }
 
   return (
     <div className={`mx-auto w-full max-w-2xl px-6 py-14 ${pagePanelClass}`}>
@@ -173,16 +150,6 @@ export default async function PropertyDetailPage({
 
       {units && units.length > 0 && (
         <NewMaintenanceRequestForm propertyId={property.id} units={units} />
-      )}
-
-      {isOwner && (
-        <>
-          <h2 className="mt-14 mb-4 text-xl font-semibold text-foreground">Access</h2>
-          <div className={`mb-4 ${cardClass}`}>
-            <AccessList grants={accessGrants} />
-          </div>
-          <InviteAccessForm propertyId={property.id} />
-        </>
       )}
     </div>
   );

@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import MobileNav from "@/components/MobileNav";
 
 const LINKS = [
   { href: "/dashboard", label: "Properties" },
@@ -28,34 +28,5 @@ export default async function NavBar() {
 
   const links = isOwner ? [...LINKS, { href: "/access", label: "Access" }] : LINKS;
 
-  return (
-    <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur-md">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-4">
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-          <Link href="/dashboard" className="text-sm font-semibold text-foreground">
-            Property Manager
-          </Link>
-          <nav className="flex flex-wrap gap-x-5 gap-y-1">
-            {links.slice(1).map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-sm text-muted hover:text-accent"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-muted">{user.email}</span>
-          <form action="/logout" method="post">
-            <button type="submit" className="text-xs text-muted hover:text-accent">
-              Sign out
-            </button>
-          </form>
-        </div>
-      </div>
-    </header>
-  );
+  return <MobileNav links={links.slice(1)} userEmail={user.email ?? ""} />;
 }

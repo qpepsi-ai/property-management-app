@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import ExpensePhotoUpload from "@/components/ExpensePhotoUpload";
 import OrphanReceiptCard from "@/components/OrphanReceiptCard";
-import { pagePanelClass } from "@/lib/ui";
+import { cardClass, pagePanelClass } from "@/lib/ui";
 
 export default async function UnlinkedReceiptsPage() {
   const supabase = await createClient();
@@ -44,11 +45,11 @@ export default async function UnlinkedReceiptsPage() {
       .map((f) => `${property.id}/${f.name}`)
       .filter((p) => !linkedPaths.has(p));
 
-    if (orphanPaths.length === 0) continue;
+    if (orphanPaths.length === 0 && candidates.length === 0) continue;
 
-    const { data: signedUrls } = await supabase.storage
-      .from("receipts")
-      .createSignedUrls(orphanPaths, 3600);
+    const { data: signedUrls } = orphanPaths.length
+      ? await supabase.storage.from("receipts").createSignedUrls(orphanPaths, 3600)
+      : { data: [] as { path: string | null; signedUrl: string }[] };
     const signedUrlByPath = new Map((signedUrls ?? []).map((s) => [s.path, s.signedUrl]));
 
     sections.push({
@@ -65,16 +66,18 @@ export default async function UnlinkedReceiptsPage() {
       </Link>
 
       <h1 className="mb-2 text-3xl font-semibold tracking-tight text-foreground">
-        Unlinked receipt photos
+        Unlinked receipts
       </h1>
       <p className="mb-8 text-sm text-muted">
-        Photos that uploaded successfully but never got attached to an expense (usually because
-        the automatic scan failed before an expense was saved). Match each one to the expense it
-        belongs to, or discard it.
+        Photos in storage that never got attached to an expense, and expenses that have no
+        photo. Match orphaned photos to the expense they belong to (or discard them), or
+        upload a photo directly to an expense.
       </p>
 
       {sections.length === 0 ? (
-        <p className="text-sm text-muted">No unlinked photos found — you&apos;re all caught up.</p>
+        <p className="text-sm text-muted">
+          Every photo is attached and every expense has one — you&apos;re all caught up.
+        </p>
       ) : (
         <div className="space-y-10">
           {sections.map(({ property, orphans, candidates }) => (
@@ -90,6 +93,30 @@ export default async function UnlinkedReceiptsPage() {
                   />
                 ))}
               </div>
+
+              {candidates.length > 0 && (
+                <div className={orphans.length > 0 ? "mt-6" : ""}>
+                  <h3 className="mb-2 text-sm font-medium text-muted">Expenses without a photo</h3>
+                  <ul className="space-y-2">
+                    {candidates.map((expense) => (
+                      <li
+                        key={expense.id}
+                        className={`flex items-center justify-between gap-3 text-sm ${cardClass}`}
+                      >
+                        <span className="min-w-0 truncate">
+                          <span className="font-medium text-foreground">
+                            {expense.description ?? expense.category}
+                          </span>{" "}
+                          <span className="text-muted">
+                            · {expense.date} · ${Number(expense.amount).toFixed(2)}
+                          </span>
+                        </span>
+                        <ExpensePhotoUpload expenseId={expense.id} propertyId={property.id} />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           ))}
         </div>

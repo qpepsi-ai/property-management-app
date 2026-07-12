@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import ConvertToMonthToMonthButton from "@/components/ConvertToMonthToMonthButton";
+import EditLeaseRent from "@/components/EditLeaseRent";
 import EditTenantForm from "@/components/EditTenantForm";
 import EndLeaseButton from "@/components/EndLeaseButton";
 import LeaseDocumentCard from "@/components/LeaseDocumentCard";
@@ -96,7 +97,9 @@ export default async function LeaseDetailPage({
           </div>
           <div className="flex justify-between">
             <dt className="text-muted">Monthly rent</dt>
-            <dd className="text-foreground">${lease.rent_amount}</dd>
+            <dd>
+              <EditLeaseRent leaseId={lease.id} rentAmount={lease.rent_amount} />
+            </dd>
           </div>
           <div className="flex justify-between">
             <dt className="text-muted">Security deposit</dt>

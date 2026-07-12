@@ -70,6 +70,12 @@ export default function IncomeExpenseChart({ rows }: { rows: Row[] }) {
   );
   const barWidth = (groupWidth - BAR_GAP) / 2;
 
+  // Value labels are centered on their own bar, so adjacent income/expense
+  // labels are only (barWidth + BAR_GAP) apart. Once bars get too narrow for
+  // that to fit the widest label, hide the per-bar labels rather than let
+  // them overlap — exact values are still available via the hover tooltip.
+  const showValueLabels = barWidth + BAR_GAP >= labelWidth + 4;
+
   function barHeight(value: number) {
     return (value / axisMax) * (CHART_HEIGHT - 24);
   }
@@ -152,15 +158,17 @@ export default function IncomeExpenseChart({ rows }: { rows: Row[] }) {
                   role="img"
                   aria-label={`${row.address} income ${formatDollars(row.ytd_income)}`}
                 />
-                <text
-                  x={groupX + barWidth / 2}
-                  y={Math.min(baseline - incomeH - 6, baseline - MIN_LABEL_GAP)}
-                  fontSize={10}
-                  textAnchor="middle"
-                  fill="var(--foreground)"
-                >
-                  {formatDollars(row.ytd_income)}
-                </text>
+                {showValueLabels && (
+                  <text
+                    x={groupX + barWidth / 2}
+                    y={Math.min(baseline - incomeH - 6, baseline - MIN_LABEL_GAP)}
+                    fontSize={10}
+                    textAnchor="middle"
+                    fill="var(--foreground)"
+                  >
+                    {formatDollars(row.ytd_income)}
+                  </text>
+                )}
 
                 {/* expense bar */}
                 <rect
@@ -183,15 +191,17 @@ export default function IncomeExpenseChart({ rows }: { rows: Row[] }) {
                   role="img"
                   aria-label={`${row.address} expenses ${formatDollars(row.ytd_expenses)}`}
                 />
-                <text
-                  x={groupX + barWidth + BAR_GAP + barWidth / 2}
-                  y={Math.min(baseline - expenseH - 6, baseline - MIN_LABEL_GAP)}
-                  fontSize={10}
-                  textAnchor="middle"
-                  fill="var(--foreground)"
-                >
-                  {formatDollars(row.ytd_expenses)}
-                </text>
+                {showValueLabels && (
+                  <text
+                    x={groupX + barWidth + BAR_GAP + barWidth / 2}
+                    y={Math.min(baseline - expenseH - 6, baseline - MIN_LABEL_GAP)}
+                    fontSize={10}
+                    textAnchor="middle"
+                    fill="var(--foreground)"
+                  >
+                    {formatDollars(row.ytd_expenses)}
+                  </text>
+                )}
 
                 {/* category label */}
                 <text

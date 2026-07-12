@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
+import ExportExpensesButton from "@/components/ExportExpensesButton";
 import ReceiptFilterBar from "@/components/ReceiptFilterBar";
 import ReceiptGallery, { type ReceiptItem } from "@/components/ReceiptGallery";
 import { buttonClass, pagePanelClass } from "@/lib/ui";
@@ -71,6 +72,24 @@ export default async function ReceiptsPage({
       ? `/properties/${properties[0].id}#add-expense`
       : "/dashboard";
 
+  const items = (expenses ?? []).map((expense): ReceiptItem => {
+    const propertyInfo = Array.isArray(expense.property) ? expense.property[0] : expense.property;
+    const scan = Array.isArray(expense.receipt_scans)
+      ? expense.receipt_scans[0]
+      : expense.receipt_scans;
+    return {
+      id: expense.id,
+      date: expense.date,
+      category: expense.category,
+      amount: expense.amount,
+      description: expense.description,
+      address: propertyInfo?.address,
+      imageUrl: (scan?.image_url && signedUrlByPath.get(scan.image_url)) || null,
+      needsReview:
+        Boolean(scan) && !scan?.reviewed_at && (scan?.confidence === "low" || !scan?.confidence),
+    };
+  });
+
   return (
     <div className={`mx-auto w-full max-w-4xl px-6 py-14 ${pagePanelClass}`}>
       <Link href="/dashboard" className="mb-8 inline-block text-sm text-muted hover:text-accent">
@@ -87,38 +106,18 @@ export default async function ReceiptsPage({
             </Link>
           </p>
         </div>
-        <Link href={scanButtonHref} className={buttonClass("primary")}>
-          Scan receipt
-        </Link>
+        <div className="flex items-center gap-3">
+          {items.length > 0 && <ExportExpensesButton items={items} />}
+          <Link href={scanButtonHref} className={buttonClass("primary")}>
+            Scan receipt
+          </Link>
+        </div>
       </div>
 
       <ReceiptFilterBar properties={properties ?? []} defaultView={resolvedView} />
 
-      {expenses && expenses.length > 0 ? (
-        <ReceiptGallery
-          view={resolvedView}
-          items={expenses.map((expense): ReceiptItem => {
-            const propertyInfo = Array.isArray(expense.property)
-              ? expense.property[0]
-              : expense.property;
-            const scan = Array.isArray(expense.receipt_scans)
-              ? expense.receipt_scans[0]
-              : expense.receipt_scans;
-            return {
-              id: expense.id,
-              date: expense.date,
-              category: expense.category,
-              amount: expense.amount,
-              description: expense.description,
-              address: propertyInfo?.address,
-              imageUrl: (scan?.image_url && signedUrlByPath.get(scan.image_url)) || null,
-              needsReview:
-                Boolean(scan) &&
-                !scan?.reviewed_at &&
-                (scan?.confidence === "low" || !scan?.confidence),
-            };
-          })}
-        />
+      {items.length > 0 ? (
+        <ReceiptGallery view={resolvedView} items={items} />
       ) : (
         <p className="text-sm text-muted">No expenses match these filters.</p>
       )}

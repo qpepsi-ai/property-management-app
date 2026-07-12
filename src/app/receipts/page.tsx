@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import ReceiptFilterBar from "@/components/ReceiptFilterBar";
 import ReceiptGallery, { type ReceiptItem } from "@/components/ReceiptGallery";
@@ -18,6 +19,11 @@ export default async function ReceiptsPage({
 }) {
   const { property, month, category, view } = await searchParams;
   const supabase = await createClient();
+
+  // The URL param wins; otherwise fall back to the remembered choice.
+  const cookieStore = await cookies();
+  const savedView = cookieStore.get("receipts_view")?.value;
+  const resolvedView = (view ?? savedView) === "list" ? ("list" as const) : ("grid" as const);
 
   const { data: properties } = await supabase
     .from("properties")
@@ -83,11 +89,11 @@ export default async function ReceiptsPage({
         </Link>
       </div>
 
-      <ReceiptFilterBar properties={properties ?? []} />
+      <ReceiptFilterBar properties={properties ?? []} defaultView={resolvedView} />
 
       {expenses && expenses.length > 0 ? (
         <ReceiptGallery
-          view={view === "list" ? "list" : "grid"}
+          view={resolvedView}
           items={expenses.map((expense): ReceiptItem => {
             const propertyInfo = Array.isArray(expense.property)
               ? expense.property[0]

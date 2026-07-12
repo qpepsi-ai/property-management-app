@@ -6,8 +6,10 @@ import { inputClass } from "@/lib/ui";
 
 export default function ReceiptFilterBar({
   properties,
+  defaultView = "grid",
 }: {
   properties: { id: string; address: string }[];
+  defaultView?: "grid" | "list";
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -59,11 +61,16 @@ export default function ReceiptFilterBar({
 
       <div className="ml-auto flex items-center rounded-full bg-surface p-0.5 text-xs">
         {(["grid", "list"] as const).map((mode) => {
-          const active = (searchParams.get("view") ?? "grid") === mode;
+          const active = (searchParams.get("view") ?? defaultView) === mode;
           return (
             <button
               key={mode}
-              onClick={() => updateParam("view", mode === "grid" ? "" : mode)}
+              onClick={() => {
+                // Remember the choice for future visits; the server page
+                // reads this cookie when the URL has no ?view param.
+                document.cookie = `receipts_view=${mode}; path=/; max-age=31536000; samesite=lax`;
+                updateParam("view", mode);
+              }}
               className={`rounded-full px-3 py-1.5 capitalize transition-colors ${
                 active ? "bg-background font-medium text-foreground shadow-sm" : "text-muted"
               }`}

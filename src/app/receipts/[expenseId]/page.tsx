@@ -56,6 +56,12 @@ export default async function ReceiptDetailPage({
               Low-confidence scan — double check these details.
             </p>
           )}
+          {!scan.confidence && (
+            <p className="mb-4 rounded-2xl bg-warning-bg px-4 py-3 text-sm text-warning-fg">
+              Automatic scan wasn&apos;t able to read this receipt — the photo was saved, but
+              these details were entered manually.
+            </p>
+          )}
           <dl className="space-y-2 text-sm">
             <div className="flex justify-between">
               <dt className="text-muted">Property</dt>

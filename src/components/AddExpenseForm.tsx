@@ -49,6 +49,7 @@ export default function AddExpenseForm({ propertyId }: { propertyId: string }) {
 
     const supabase = createClient();
     const path = `${propertyId}/${crypto.randomUUID()}-${file.name}`;
+    let uploaded = false;
 
     try {
       const [{ base64, mediaType }, uploadResult] = await Promise.all([
@@ -57,6 +58,12 @@ export default function AddExpenseForm({ propertyId }: { propertyId: string }) {
       ]);
 
       if (uploadResult.error) throw uploadResult.error;
+
+      // The photo is saved from here on regardless of whether the scan
+      // below succeeds, so it's never orphaned in storage with no way
+      // to find it again from the app.
+      uploaded = true;
+      setReceiptPath(path);
 
       const res = await fetch("/api/scan-receipt", {
         method: "POST",
@@ -76,11 +83,14 @@ export default function AddExpenseForm({ propertyId }: { propertyId: string }) {
       if (extracted.vendor) setDescription(extracted.vendor);
       setConfidence(extracted.confidence ?? null);
       setRawExtractedText(rawText);
-      setReceiptPath(path);
       setScanState("scanned");
     } catch (err) {
       setScanState("error");
-      setScanError(err instanceof Error ? err.message : "Something went wrong.");
+      setScanError(
+        uploaded
+          ? "Couldn't read this receipt automatically — fill in the details below manually. The photo is still saved with this expense."
+          : (err instanceof Error ? err.message : "Something went wrong."),
+      );
     }
   }
 

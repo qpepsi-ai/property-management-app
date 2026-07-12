@@ -90,7 +90,7 @@ export default async function ReceiptsPage({
               ? expense.receipt_scans[0]
               : expense.receipt_scans;
             const imageUrl = scan?.image_url ? signedUrlByPath.get(scan.image_url) : null;
-            const needsReview = scan?.confidence === "low";
+            const needsReview = Boolean(scan) && (scan?.confidence === "low" || !scan?.confidence);
 
             const card = (
               <div className="rounded-2xl bg-surface p-3 text-xs shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-shadow hover:shadow-md">

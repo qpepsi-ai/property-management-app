@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cardClass } from "@/lib/ui";
 
 type Row = {
@@ -11,26 +11,47 @@ type Row = {
 };
 
 const CHART_HEIGHT = 200;
-const BAR_WIDTH = 20;
 const BAR_GAP = 4;
-const GROUP_GAP = 36;
+const GROUP_GAP = 24;
+const MIN_BAR_WIDTH = 6;
+const FALLBACK_WIDTH = 600;
 
 function formatDollars(value: number) {
   return `$${Math.round(value).toLocaleString("en-US")}`;
 }
 
 export default function IncomeExpenseChart({ rows }: { rows: Row[] }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(FALLBACK_WIDTH);
   const [hovered, setHovered] = useState<{ propertyId: string; series: "income" | "expense" } | null>(
     null,
   );
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver((entries) => {
+      const width = entries[0]?.contentRect.width;
+      if (width) setContainerWidth(width);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const maxValue = Math.max(1, ...rows.flatMap((r) => [r.ytd_income, r.ytd_expenses]));
   // round the axis ceiling up to a clean step
   const step = Math.pow(10, Math.max(0, Math.floor(Math.log10(maxValue)) - 1));
   const axisMax = Math.ceil(maxValue / (step * 5)) * step * 5;
 
-  const groupWidth = BAR_WIDTH * 2 + BAR_GAP;
-  const chartWidth = rows.length * groupWidth + (rows.length + 1) * GROUP_GAP;
+  // Chart fills the measured container width — group/bar widths shrink
+  // as more properties are added, rather than the chart growing wider
+  // and needing to scroll.
+  const chartWidth = containerWidth;
+  const groupWidth = Math.max(
+    (chartWidth - (rows.length + 1) * GROUP_GAP) / Math.max(rows.length, 1),
+    MIN_BAR_WIDTH * 2 + BAR_GAP,
+  );
+  const barWidth = (groupWidth - BAR_GAP) / 2;
 
   function barHeight(value: number) {
     return (value / axisMax) * (CHART_HEIGHT - 24);
@@ -51,10 +72,10 @@ export default function IncomeExpenseChart({ rows }: { rows: Row[] }) {
         </span>
       </div>
 
-      <div className="overflow-x-auto">
+      <div ref={containerRef} className="w-full overflow-x-auto">
         <svg
-          viewBox={`0 0 ${Math.max(chartWidth, 240)} ${CHART_HEIGHT + 44}`}
-          width={Math.max(chartWidth, 240)}
+          viewBox={`0 0 ${chartWidth} ${CHART_HEIGHT + 44}`}
+          width={chartWidth}
           height={CHART_HEIGHT + 44}
           role="img"
           aria-label="Year-to-date income and expenses by property"
@@ -85,6 +106,7 @@ export default function IncomeExpenseChart({ rows }: { rows: Row[] }) {
             const incomeH = barHeight(row.ytd_income);
             const expenseH = barHeight(row.ytd_expenses);
             const baseline = 12 + (CHART_HEIGHT - 24);
+            const maxLabelChars = Math.max(4, Math.floor(groupWidth / 6));
 
             return (
               <g key={row.property_id}>
@@ -92,7 +114,7 @@ export default function IncomeExpenseChart({ rows }: { rows: Row[] }) {
                 <rect
                   x={groupX}
                   y={baseline - incomeH}
-                  width={BAR_WIDTH}
+                  width={barWidth}
                   height={Math.max(incomeH, 1)}
                   rx={4}
                   fill="var(--chart-income)"
@@ -110,7 +132,7 @@ export default function IncomeExpenseChart({ rows }: { rows: Row[] }) {
                   aria-label={`${row.address} income ${formatDollars(row.ytd_income)}`}
                 />
                 <text
-                  x={groupX + BAR_WIDTH / 2}
+                  x={groupX + barWidth / 2}
                   y={baseline - incomeH - 6}
                   fontSize={10}
                   textAnchor="middle"
@@ -121,9 +143,9 @@ export default function IncomeExpenseChart({ rows }: { rows: Row[] }) {
 
                 {/* expense bar */}
                 <rect
-                  x={groupX + BAR_WIDTH + BAR_GAP}
+                  x={groupX + barWidth + BAR_GAP}
                   y={baseline - expenseH}
-                  width={BAR_WIDTH}
+                  width={barWidth}
                   height={Math.max(expenseH, 1)}
                   rx={4}
                   fill="var(--chart-expense)"
@@ -141,7 +163,7 @@ export default function IncomeExpenseChart({ rows }: { rows: Row[] }) {
                   aria-label={`${row.address} expenses ${formatDollars(row.ytd_expenses)}`}
                 />
                 <text
-                  x={groupX + BAR_WIDTH + BAR_GAP + BAR_WIDTH / 2}
+                  x={groupX + barWidth + BAR_GAP + barWidth / 2}
                   y={baseline - expenseH - 6}
                   fontSize={10}
                   textAnchor="middle"
@@ -152,13 +174,15 @@ export default function IncomeExpenseChart({ rows }: { rows: Row[] }) {
 
                 {/* category label */}
                 <text
-                  x={groupX + BAR_WIDTH + BAR_GAP / 2}
+                  x={groupX + barWidth + BAR_GAP / 2}
                   y={CHART_HEIGHT + 32}
                   fontSize={11}
                   textAnchor="middle"
                   fill="var(--muted)"
                 >
-                  {row.address.length > 14 ? `${row.address.slice(0, 13)}…` : row.address}
+                  {row.address.length > maxLabelChars
+                    ? `${row.address.slice(0, maxLabelChars - 1)}…`
+                    : row.address}
                 </text>
               </g>
             );

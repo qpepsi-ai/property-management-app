@@ -1,9 +1,11 @@
 @import "tailwindcss";
 
 :root {
+  color-scheme: light;
   --page-bg: #e5e5ea;
   --background: #ffffff;
   --surface: #f5f5f7;
+  --surface-hover: #e8e8ed;
   --foreground: #1d1d1f;
   --muted: #86868b;
   --border: #d2d2d7;
@@ -29,6 +31,7 @@
   --color-page-bg: var(--page-bg);
   --color-background: var(--background);
   --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-border: var(--border);
@@ -53,9 +56,41 @@
   --font-mono: var(--font-geist-mono);
 }
 
-/* Light-only blue & white theme for now — dark mode intentionally
-   disabled here; re-add a `@media (prefers-color-scheme: dark)` block
-   with blue-tinted dark values when that's revisited. */
+/* Dark theme: applied via data-theme="dark" on <html>, set server-side
+   from the `theme` cookie (see layout.tsx) and toggled in the navbar.
+   Attribute-driven rather than prefers-color-scheme so the user's
+   explicit choice wins on every device. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page-bg: #000000;
+  --background: #1c1c1e;
+  --surface: #2c2c2e;
+  --surface-hover: #3a3a3c;
+  --foreground: #f5f5f7;
+  --muted: #98989d;
+  --border: #3a3a3c;
+  --accent: #0a84ff;
+  --accent-foreground: #ffffff;
+  --accent-muted: #102a43;
+  --chart-income: #0a84ff;
+  --chart-expense: #ff9f0a;
+
+  --success-bg: #12351f;
+  --success-fg: #4ade80;
+  --warning-bg: #3a2c0a;
+  --warning-fg: #fbbf24;
+  --danger-bg: #3f1212;
+  --danger-fg: #f87171;
+  --info-bg: #102a43;
+  --info-fg: #64b5ff;
+  --neutral-bg: #2c2c2e;
+  --neutral-fg: #98989d;
+}
+
+:root[data-theme="dark"] body {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0.78)),
+    url("/property-background.jpg");
+}
 
 body {
   background-color: var(--page-bg);

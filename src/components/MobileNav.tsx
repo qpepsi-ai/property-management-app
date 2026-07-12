@@ -2,15 +2,18 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import ThemeToggle from "@/components/ThemeToggle";
 
 type NavLink = { href: string; label: string };
 
 export default function MobileNav({
   links,
   userEmail,
+  initialTheme,
 }: {
   links: NavLink[];
   userEmail: string;
+  initialTheme: "light" | "dark";
 }) {
   const [open, setOpen] = useState(false);
 
@@ -34,30 +37,36 @@ export default function MobileNav({
           </nav>
         </div>
 
-        <div className="hidden items-center gap-3 sm:flex">
-          <span className="text-xs text-muted">{userEmail}</span>
-          <form action="/logout" method="post">
-            <button type="submit" className="text-xs text-muted hover:text-accent">
-              Sign out
-            </button>
-          </form>
-        </div>
+        <div className="flex items-center gap-3">
+          <div className="hidden items-center gap-3 sm:flex">
+            <span className="text-xs text-muted">{userEmail}</span>
+            <form action="/logout" method="post">
+              <button type="submit" className="text-xs text-muted hover:text-accent">
+                Sign out
+              </button>
+            </form>
+          </div>
 
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          aria-label={open ? "Close menu" : "Open menu"}
-          aria-expanded={open}
-          className="flex h-8 w-8 flex-col items-center justify-center gap-1.5 sm:hidden"
-        >
-          <span
-            className={`h-0.5 w-5 bg-foreground transition-transform ${open ? "translate-y-2 rotate-45" : ""}`}
-          />
-          <span className={`h-0.5 w-5 bg-foreground transition-opacity ${open ? "opacity-0" : ""}`} />
-          <span
-            className={`h-0.5 w-5 bg-foreground transition-transform ${open ? "-translate-y-2 -rotate-45" : ""}`}
-          />
-        </button>
+          <ThemeToggle initialTheme={initialTheme} />
+
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
+            className="flex h-8 w-8 flex-col items-center justify-center gap-1.5 sm:hidden"
+          >
+            <span
+              className={`h-0.5 w-5 bg-foreground transition-transform ${open ? "translate-y-2 rotate-45" : ""}`}
+            />
+            <span
+              className={`h-0.5 w-5 bg-foreground transition-opacity ${open ? "opacity-0" : ""}`}
+            />
+            <span
+              className={`h-0.5 w-5 bg-foreground transition-transform ${open ? "-translate-y-2 -rotate-45" : ""}`}
+            />
+          </button>
+        </div>
       </div>
 
       {open && (

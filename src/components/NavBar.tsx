@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import MobileNav from "@/components/MobileNav";
 
@@ -28,5 +29,10 @@ export default async function NavBar() {
 
   const links = isOwner ? [...LINKS, { href: "/access", label: "Access" }] : LINKS;
 
-  return <MobileNav links={links.slice(1)} userEmail={user.email ?? ""} />;
+  const cookieStore = await cookies();
+  const initialTheme = cookieStore.get("theme")?.value === "dark" ? "dark" : "light";
+
+  return (
+    <MobileNav links={links.slice(1)} userEmail={user.email ?? ""} initialTheme={initialTheme} />
+  );
 }

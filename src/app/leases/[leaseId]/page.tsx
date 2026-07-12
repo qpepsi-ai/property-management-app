@@ -7,8 +7,8 @@ import EditTenantForm from "@/components/EditTenantForm";
 import EndLeaseButton from "@/components/EndLeaseButton";
 import LeaseDocumentCard from "@/components/LeaseDocumentCard";
 import LogPaymentForm from "@/components/LogPaymentForm";
+import PaymentRow from "@/components/PaymentRow";
 import { cardClass, pagePanelClass } from "@/lib/ui";
-import Badge from "@/components/ui/Badge";
 
 const RENEWAL_WINDOW_DAYS = 60;
 
@@ -131,16 +131,7 @@ export default async function LeaseDetailPage({
         {payments && payments.length > 0 ? (
           <ul className="space-y-2 text-sm">
             {payments.map((payment) => (
-              <li key={payment.id} className="flex items-center justify-between">
-                <span className="text-foreground">
-                  {payment.due_date} · ${payment.amount_paid}
-                  {payment.paid_date ? ` · paid ${payment.paid_date}` : ""}
-                  {payment.notes ? ` · ${payment.notes}` : ""}
-                </span>
-                <Badge variant={payment.status === "paid" ? "success" : "warning"}>
-                  {payment.status}
-                </Badge>
-              </li>
+              <PaymentRow key={payment.id} payment={payment} />
             ))}
           </ul>
         ) : (

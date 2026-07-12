@@ -7,7 +7,14 @@ export async function GET(request: NextRequest) {
   const code = searchParams.get("code");
   const token_hash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
-  const next = searchParams.get("next") ?? "/dashboard";
+  // Only allow same-site relative paths for the post-login redirect —
+  // values like "@evil.com" or "//evil.com" would otherwise resolve to
+  // another domain once appended to the origin.
+  const rawNext = searchParams.get("next") ?? "/dashboard";
+  const next =
+    rawNext.startsWith("/") && !rawNext.startsWith("//") && !rawNext.startsWith("/\\")
+      ? rawNext
+      : "/dashboard";
 
   const supabase = await createClient();
 

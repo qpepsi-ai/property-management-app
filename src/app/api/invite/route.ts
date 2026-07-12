@@ -2,7 +2,10 @@ import { NextResponse } from "next/server";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 
-const VALID_ROLES = ["owner", "co-owner", "accountant"];
+// Ownership is granted only at property creation; invites can never
+// mint or replace an owner.
+const VALID_ROLES = ["co-owner", "accountant"];
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -15,8 +18,9 @@ export async function POST(request: Request) {
   }
 
   const { email, propertyId, role } = await request.json();
+  const normalizedEmail = typeof email === "string" ? email.trim().toLowerCase() : "";
 
-  if (!email || !propertyId || !VALID_ROLES.includes(role)) {
+  if (!EMAIL_PATTERN.test(normalizedEmail) || !propertyId || !VALID_ROLES.includes(role)) {
     return NextResponse.json({ error: "Missing or invalid fields" }, { status: 400 });
   }
 
@@ -33,17 +37,36 @@ export async function POST(request: Request) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
   );
 
-  // Does this person already have an account?
+  // Does this person already have an account? Exact match only — ilike
+  // would treat % and _ in the input as wildcards and could bind the
+  // grant to the wrong account. (Supabase stores emails lowercased.)
   const { data: existing } = await admin
     .from("users")
     .select("id")
-    .ilike("email", email)
+    .eq("email", normalizedEmail)
     .maybeSingle();
 
   let invitedUserId = existing?.id;
 
-  if (!invitedUserId) {
-    const { data: invited, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email);
+  if (invitedUserId) {
+    // Never let an invite overwrite an existing owner grant — that
+    // would let one owner silently demote another.
+    const { data: currentGrant } = await admin
+      .from("property_access")
+      .select("role")
+      .eq("user_id", invitedUserId)
+      .eq("property_id", propertyId)
+      .maybeSingle();
+
+    if (currentGrant?.role === "owner") {
+      return NextResponse.json(
+        { error: "That person is an owner of this property; their role can't be changed here." },
+        { status: 409 },
+      );
+    }
+  } else {
+    const { data: invited, error: inviteError } =
+      await admin.auth.admin.inviteUserByEmail(normalizedEmail);
     if (inviteError || !invited.user) {
       return NextResponse.json(
         { error: inviteError?.message ?? "Could not invite user" },

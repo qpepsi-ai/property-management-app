@@ -49,6 +49,19 @@ export default async function PropertyDetailPage({
     .eq("property_id", id)
     .order("date", { ascending: false });
 
+  // Other properties this user owns, offered by the expense form for
+  // splitting a shared cost (only owners can insert expenses).
+  const { data: ownedGrants } = await supabase
+    .from("property_access")
+    .select("property_id, properties (address)")
+    .eq("role", "owner")
+    .neq("property_id", id);
+
+  const otherOwnedProperties = (ownedGrants ?? []).flatMap((grant) => {
+    const address = (grant.properties as unknown as { address: string } | null)?.address;
+    return address ? [{ id: grant.property_id, address }] : [];
+  });
+
   const { data: maintenanceRequests } = await supabase
     .from("maintenance_requests")
     .select("id, unit_id, description, priority, status, date_reported, vendor, cost")
@@ -117,7 +130,7 @@ export default async function PropertyDetailPage({
       )}
 
       <div id="add-expense">
-        <AddExpenseForm propertyId={property.id} />
+        <AddExpenseForm propertyId={property.id} otherProperties={otherOwnedProperties} />
       </div>
 
       <h2 className="mt-14 mb-4 text-xl font-semibold text-foreground">Maintenance</h2>

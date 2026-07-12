@@ -71,7 +71,12 @@ export default async function ReceiptsPage({
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight text-foreground">Receipts</h1>
-          <p className="text-sm text-muted">{totalScans ?? 0} scanned</p>
+          <p className="text-sm text-muted">
+            {totalScans ?? 0} scanned ·{" "}
+            <Link href="/receipts/unlinked" className="text-accent hover:underline">
+              Review unlinked photos
+            </Link>
+          </p>
         </div>
         <Link href={scanButtonHref} className={buttonClass("primary")}>
           Scan receipt

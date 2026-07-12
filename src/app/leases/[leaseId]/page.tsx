@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import ConvertToMonthToMonthButton from "@/components/ConvertToMonthToMonthButton";
 import EditTenantForm from "@/components/EditTenantForm";
 import EndLeaseButton from "@/components/EndLeaseButton";
+import LeaseDocumentCard from "@/components/LeaseDocumentCard";
 import LogPaymentForm from "@/components/LogPaymentForm";
 import { cardClass, pagePanelClass } from "@/lib/ui";
 import Badge from "@/components/ui/Badge";
@@ -21,7 +22,7 @@ export default async function LeaseDetailPage({
   const { data: lease } = await supabase
     .from("leases")
     .select(
-      "id, start_date, end_date, rent_amount, security_deposit, status, unit:units(id, label, property_id, property:properties(id, address)), tenant:tenants(id, name, email, phone)",
+      "id, start_date, end_date, rent_amount, security_deposit, status, document_path, unit:units(id, label, property_id, property:properties(id, address)), tenant:tenants(id, name, email, phone)",
     )
     .eq("id", leaseId)
     .single();
@@ -39,6 +40,14 @@ export default async function LeaseDetailPage({
   const unit = Array.isArray(lease.unit) ? lease.unit[0] : lease.unit;
   const property = Array.isArray(unit?.property) ? unit.property[0] : unit?.property;
   const tenant = Array.isArray(lease.tenant) ? lease.tenant[0] : lease.tenant;
+
+  let documentUrl: string | null = null;
+  if (lease.document_path) {
+    const { data: signed } = await supabase.storage
+      .from("lease-documents")
+      .createSignedUrl(lease.document_path, 3600);
+    documentUrl = signed?.signedUrl ?? null;
+  }
 
   // A lease with no end date is month-to-month — nothing to renew.
   const isMonthToMonth = lease.end_date === null;
@@ -97,6 +106,15 @@ export default async function LeaseDetailPage({
           </div>
         </dl>
       </div>
+
+      {unit && (
+        <LeaseDocumentCard
+          leaseId={lease.id}
+          propertyId={unit.property_id}
+          documentPath={lease.document_path}
+          documentUrl={documentUrl}
+        />
+      )}
 
       {tenant && (
         <div className={`mb-6 ${cardClass}`}>

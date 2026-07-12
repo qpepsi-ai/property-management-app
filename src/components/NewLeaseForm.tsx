@@ -64,7 +64,7 @@ export default function NewLeaseForm({
       unit_id: unitId,
       tenant_id: resolvedTenantId,
       start_date: startDate,
-      end_date: endDate,
+      end_date: endDate || null,
       rent_amount: Number(rentAmount),
       security_deposit: securityDeposit ? Number(securityDeposit) : null,
       status: "active",
@@ -163,10 +163,9 @@ export default function NewLeaseForm({
               />
             </label>
             <label className={`flex-1 ${labelClass}`}>
-              End date
+              End date (blank for month-to-month)
               <input
                 type="date"
-                required
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
                 className={`mt-1 ${inputClass}`}

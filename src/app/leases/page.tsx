@@ -14,7 +14,7 @@ export default async function LeasesPage() {
       "id, end_date, rent_amount, status, unit:units(id, label, property_id, property:properties(id, address)), tenant:tenants(id, name)",
     )
     .eq("status", "active")
-    .order("end_date");
+    .order("end_date", { nullsFirst: false });
 
   const { data: vacantUnits } = await supabase
     .from("units")
@@ -36,10 +36,11 @@ export default async function LeasesPage() {
             const unit = Array.isArray(lease.unit) ? lease.unit[0] : lease.unit;
             const property = Array.isArray(unit?.property) ? unit.property[0] : unit?.property;
             const tenant = Array.isArray(lease.tenant) ? lease.tenant[0] : lease.tenant;
-            const daysUntilEnd = Math.ceil(
-              (new Date(lease.end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
-            );
-            const nearingRenewal = daysUntilEnd <= RENEWAL_WINDOW_DAYS;
+            const isMonthToMonth = lease.end_date === null;
+            const daysUntilEnd = isMonthToMonth
+              ? null
+              : Math.ceil((new Date(lease.end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+            const nearingRenewal = daysUntilEnd !== null && daysUntilEnd <= RENEWAL_WINDOW_DAYS;
 
             return (
               <li key={lease.id}>
@@ -50,9 +51,11 @@ export default async function LeasesPage() {
                   <span>
                     <span className="font-medium text-foreground">{tenant?.name}</span>{" "}
                     <span className="text-muted">
-                      · {unit?.label}, {property?.address} · ${lease.rent_amount}/mo · ends {lease.end_date}
+                      · {unit?.label}, {property?.address} · ${lease.rent_amount}/mo
+                      {isMonthToMonth ? "" : ` · ends ${lease.end_date}`}
                     </span>
                   </span>
+                  {isMonthToMonth && <Badge variant="neutral">month-to-month</Badge>}
                   {nearingRenewal && <Badge variant="warning">renewal due</Badge>}
                 </Link>
               </li>

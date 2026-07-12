@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import ConvertToMonthToMonthButton from "@/components/ConvertToMonthToMonthButton";
 import EditTenantForm from "@/components/EditTenantForm";
 import EndLeaseButton from "@/components/EndLeaseButton";
 import LogPaymentForm from "@/components/LogPaymentForm";
@@ -39,11 +40,13 @@ export default async function LeaseDetailPage({
   const property = Array.isArray(unit?.property) ? unit.property[0] : unit?.property;
   const tenant = Array.isArray(lease.tenant) ? lease.tenant[0] : lease.tenant;
 
-  const daysUntilEnd = Math.ceil(
-    (new Date(lease.end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
-  );
+  // A lease with no end date is month-to-month — nothing to renew.
+  const isMonthToMonth = lease.end_date === null;
+  const daysUntilEnd = isMonthToMonth
+    ? null
+    : Math.ceil((new Date(lease.end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
   const isNearingRenewal =
-    lease.status === "active" && daysUntilEnd <= RENEWAL_WINDOW_DAYS;
+    lease.status === "active" && daysUntilEnd !== null && daysUntilEnd <= RENEWAL_WINDOW_DAYS;
 
   return (
     <div className={`mx-auto w-full max-w-2xl px-6 py-14 ${pagePanelClass}`}>
@@ -57,7 +60,7 @@ export default async function LeaseDetailPage({
       <h1 className="mb-1 text-3xl font-semibold tracking-tight text-foreground">{unit?.label}</h1>
       <p className="mb-8 text-sm text-muted">{property?.address}</p>
 
-      {isNearingRenewal && (
+      {isNearingRenewal && daysUntilEnd !== null && (
         <div className="mb-8 rounded-2xl bg-warning-bg px-4 py-3 text-sm text-warning-fg">
           {daysUntilEnd >= 0
             ? `Lease ends in ${daysUntilEnd} day${daysUntilEnd === 1 ? "" : "s"} — renewal due soon.`
@@ -78,7 +81,9 @@ export default async function LeaseDetailPage({
           </div>
           <div className="flex justify-between">
             <dt className="text-muted">End date</dt>
-            <dd className="text-foreground">{lease.end_date}</dd>
+            <dd className="text-foreground">
+              {isMonthToMonth ? "Month-to-month" : lease.end_date}
+            </dd>
           </div>
           <div className="flex justify-between">
             <dt className="text-muted">Monthly rent</dt>
@@ -128,7 +133,12 @@ export default async function LeaseDetailPage({
         </div>
       )}
 
-      {lease.status === "active" && <EndLeaseButton leaseId={lease.id} />}
+      {lease.status === "active" && (
+        <div className="flex flex-col gap-3 sm:flex-row">
+          {!isMonthToMonth && <ConvertToMonthToMonthButton leaseId={lease.id} />}
+          <EndLeaseButton leaseId={lease.id} />
+        </div>
+      )}
     </div>
   );
 }

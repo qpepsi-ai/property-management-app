@@ -40,7 +40,7 @@ export default async function ReceiptsPage({
   let query = supabase
     .from("expenses")
     .select(
-      "id, date, category, amount, description, property_id, property:properties(id, address), receipt_scans(id, image_url, confidence)",
+      "id, date, category, amount, description, property_id, property:properties(id, address), receipt_scans(id, image_url, confidence, reviewed_at)",
     )
     .order("date", { ascending: false });
 
@@ -112,7 +112,10 @@ export default async function ReceiptsPage({
               description: expense.description,
               address: propertyInfo?.address,
               imageUrl: (scan?.image_url && signedUrlByPath.get(scan.image_url)) || null,
-              needsReview: Boolean(scan) && (scan?.confidence === "low" || !scan?.confidence),
+              needsReview:
+                Boolean(scan) &&
+                !scan?.reviewed_at &&
+                (scan?.confidence === "low" || !scan?.confidence),
             };
           })}
         />

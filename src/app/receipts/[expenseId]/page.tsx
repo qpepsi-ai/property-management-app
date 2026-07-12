@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import MarkReviewedButton from "@/components/MarkReviewedButton";
 import { pagePanelClass } from "@/lib/ui";
 
 export default async function ReceiptDetailPage({
@@ -14,7 +15,7 @@ export default async function ReceiptDetailPage({
   const { data: expense } = await supabase
     .from("expenses")
     .select(
-      "id, date, category, amount, description, property:properties(id, address), receipt_scans(id, image_url, raw_extracted_text, confidence)",
+      "id, date, category, amount, description, property:properties(id, address), receipt_scans(id, image_url, raw_extracted_text, confidence, reviewed_at)",
     )
     .eq("id", expenseId)
     .single();
@@ -51,12 +52,12 @@ export default async function ReceiptDetailPage({
         </div>
 
         <div>
-          {scan.confidence === "low" && (
+          {!scan.reviewed_at && scan.confidence === "low" && (
             <p className="mb-4 rounded-2xl bg-warning-bg px-4 py-3 text-sm text-warning-fg">
               Low-confidence scan — double check these details.
             </p>
           )}
-          {!scan.confidence && (
+          {!scan.reviewed_at && !scan.confidence && (
             <p className="mb-4 rounded-2xl bg-warning-bg px-4 py-3 text-sm text-warning-fg">
               Automatic scan wasn&apos;t able to read this receipt — the photo was saved, but
               these details were entered manually.
@@ -87,7 +88,19 @@ export default async function ReceiptDetailPage({
               <dt className="text-muted">Scan confidence</dt>
               <dd className="text-foreground">{scan.confidence ?? "unknown"}</dd>
             </div>
+            {scan.reviewed_at && (
+              <div className="flex justify-between">
+                <dt className="text-muted">Reviewed</dt>
+                <dd className="text-foreground">{scan.reviewed_at.slice(0, 10)}</dd>
+              </div>
+            )}
           </dl>
+
+          {!scan.reviewed_at && (scan.confidence === "low" || !scan.confidence) && (
+            <div className="mt-4">
+              <MarkReviewedButton scanId={scan.id} />
+            </div>
+          )}
         </div>
       </div>
     </div>

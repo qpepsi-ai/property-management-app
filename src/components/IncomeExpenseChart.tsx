@@ -14,6 +14,8 @@ const CHART_HEIGHT = 200;
 const BAR_GAP = 4;
 const GROUP_GAP = 24;
 const MIN_BAR_WIDTH = 6;
+const MIN_BAR_HEIGHT = 3;
+const MIN_LABEL_GAP = 14;
 const FALLBACK_WIDTH = 600;
 
 function formatDollars(value: number) {
@@ -113,10 +115,10 @@ export default function IncomeExpenseChart({ rows }: { rows: Row[] }) {
                 {/* income bar */}
                 <rect
                   x={groupX}
-                  y={baseline - incomeH}
+                  y={baseline - Math.max(incomeH, MIN_BAR_HEIGHT)}
                   width={barWidth}
-                  height={Math.max(incomeH, 1)}
-                  rx={4}
+                  height={Math.max(incomeH, MIN_BAR_HEIGHT)}
+                  rx={2}
                   fill="var(--chart-income)"
                   opacity={
                     hovered && hovered.propertyId === row.property_id && hovered.series !== "income"
@@ -133,7 +135,7 @@ export default function IncomeExpenseChart({ rows }: { rows: Row[] }) {
                 />
                 <text
                   x={groupX + barWidth / 2}
-                  y={baseline - incomeH - 6}
+                  y={Math.min(baseline - incomeH - 6, baseline - MIN_LABEL_GAP)}
                   fontSize={10}
                   textAnchor="middle"
                   fill="var(--foreground)"
@@ -144,10 +146,10 @@ export default function IncomeExpenseChart({ rows }: { rows: Row[] }) {
                 {/* expense bar */}
                 <rect
                   x={groupX + barWidth + BAR_GAP}
-                  y={baseline - expenseH}
+                  y={baseline - Math.max(expenseH, MIN_BAR_HEIGHT)}
                   width={barWidth}
-                  height={Math.max(expenseH, 1)}
-                  rx={4}
+                  height={Math.max(expenseH, MIN_BAR_HEIGHT)}
+                  rx={2}
                   fill="var(--chart-expense)"
                   opacity={
                     hovered && hovered.propertyId === row.property_id && hovered.series !== "expense"
@@ -164,7 +166,7 @@ export default function IncomeExpenseChart({ rows }: { rows: Row[] }) {
                 />
                 <text
                   x={groupX + barWidth + BAR_GAP + barWidth / 2}
-                  y={baseline - expenseH - 6}
+                  y={Math.min(baseline - expenseH - 6, baseline - MIN_LABEL_GAP)}
                   fontSize={10}
                   textAnchor="middle"
                   fill="var(--foreground)"

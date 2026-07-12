@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import ReceiptFilterBar from "@/components/ReceiptFilterBar";
+import ReceiptGallery, { type ReceiptItem } from "@/components/ReceiptGallery";
 import { buttonClass, pagePanelClass } from "@/lib/ui";
-import Badge from "@/components/ui/Badge";
 
 function monthRange(month: string) {
   const [year, m] = month.split("-").map(Number);
@@ -14,9 +14,9 @@ function monthRange(month: string) {
 export default async function ReceiptsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ property?: string; month?: string; category?: string }>;
+  searchParams: Promise<{ property?: string; month?: string; category?: string; view?: string }>;
 }) {
-  const { property, month, category } = await searchParams;
+  const { property, month, category, view } = await searchParams;
   const supabase = await createClient();
 
   const { data: properties } = await supabase
@@ -86,49 +86,27 @@ export default async function ReceiptsPage({
       <ReceiptFilterBar properties={properties ?? []} />
 
       {expenses && expenses.length > 0 ? (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-          {expenses.map((expense) => {
+        <ReceiptGallery
+          view={view === "list" ? "list" : "grid"}
+          items={expenses.map((expense): ReceiptItem => {
             const propertyInfo = Array.isArray(expense.property)
               ? expense.property[0]
               : expense.property;
             const scan = Array.isArray(expense.receipt_scans)
               ? expense.receipt_scans[0]
               : expense.receipt_scans;
-            const imageUrl = scan?.image_url ? signedUrlByPath.get(scan.image_url) : null;
-            const needsReview = Boolean(scan) && (scan?.confidence === "low" || !scan?.confidence);
-
-            const card = (
-              <div className="rounded-2xl bg-surface p-3 text-xs shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-shadow hover:shadow-md">
-                <div className="mb-2 flex aspect-square items-center justify-center overflow-hidden rounded-md bg-neutral-bg">
-                  {imageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={imageUrl} alt="" className="h-full w-full object-cover" />
-                  ) : (
-                    <span className="text-2xl text-muted">🧾</span>
-                  )}
-                </div>
-                {needsReview && (
-                  <div className="mb-1">
-                    <Badge variant="warning">Needs review</Badge>
-                  </div>
-                )}
-                <p className="truncate font-medium text-foreground">
-                  {expense.description ?? expense.category}
-                </p>
-                <p className="truncate text-muted">
-                  {propertyInfo?.address} · ${expense.amount}
-                </p>
-                <p className="text-muted">{expense.date}</p>
-              </div>
-            );
-
-            return (
-              <div key={expense.id}>
-                {imageUrl ? <Link href={`/receipts/${expense.id}`}>{card}</Link> : card}
-              </div>
-            );
+            return {
+              id: expense.id,
+              date: expense.date,
+              category: expense.category,
+              amount: expense.amount,
+              description: expense.description,
+              address: propertyInfo?.address,
+              imageUrl: (scan?.image_url && signedUrlByPath.get(scan.image_url)) || null,
+              needsReview: Boolean(scan) && (scan?.confidence === "low" || !scan?.confidence),
+            };
           })}
-        </div>
+        />
       ) : (
         <p className="text-sm text-muted">No expenses match these filters.</p>
       )}

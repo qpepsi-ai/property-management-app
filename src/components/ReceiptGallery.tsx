@@ -30,37 +30,68 @@ export default function ReceiptGallery({
   view,
 }: {
   items: ReceiptItem[];
-  view: "grid" | "list";
+  view: "grid" | "table";
 }) {
-  if (view === "list") {
+  if (view === "table") {
     return (
-      <ul className="space-y-2">
-        {items.map((item) => {
-          const row = (
-            <div className="flex items-center gap-3 rounded-2xl bg-surface p-3 text-sm shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-shadow hover:shadow-md">
-              <Thumbnail imageUrl={item.imageUrl} className="h-12 w-12 shrink-0 rounded-md" />
-              <div className="min-w-0 flex-1">
-                <p className="truncate font-medium text-foreground">
-                  {item.description ?? item.category}
-                </p>
-                <p className="truncate text-xs text-muted">
-                  {item.address} · {item.category} · {item.date}
-                </p>
-              </div>
-              {item.needsReview && <Badge variant="warning">Needs review</Badge>}
-              <span className="shrink-0 font-medium text-foreground">
-                ${Number(item.amount).toFixed(2)}
-              </span>
-            </div>
-          );
-
-          return (
-            <li key={item.id}>
-              {item.imageUrl ? <Link href={`/receipts/${item.id}`}>{row}</Link> : row}
-            </li>
-          );
-        })}
-      </ul>
+      <div className="overflow-x-auto rounded-2xl bg-surface p-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border text-left text-muted">
+              <th className="py-2 pr-4 font-normal">Receipt</th>
+              <th className="py-2 pr-4 font-normal">Date</th>
+              <th className="py-2 pr-4 font-normal">Description</th>
+              <th className="py-2 pr-4 font-normal">Property</th>
+              <th className="py-2 pr-4 font-normal">Category</th>
+              <th className="py-2 pr-4 text-right font-normal">Amount</th>
+              <th className="py-2 font-normal">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((item) => {
+              const description = item.description ?? item.category;
+              return (
+                <tr key={item.id} className="border-b border-border/60 text-foreground">
+                  <td className="py-2 pr-4">
+                    {item.imageUrl ? (
+                      <Link href={`/receipts/${item.id}`}>
+                        <Thumbnail imageUrl={item.imageUrl} className="h-10 w-10 rounded-md" />
+                      </Link>
+                    ) : (
+                      <Thumbnail imageUrl={null} className="h-10 w-10 rounded-md" />
+                    )}
+                  </td>
+                  <td className="whitespace-nowrap py-2 pr-4">{item.date}</td>
+                  <td className="py-2 pr-4 font-medium">
+                    {item.imageUrl ? (
+                      <Link
+                        href={`/receipts/${item.id}`}
+                        className="hover:text-accent hover:underline"
+                      >
+                        {description}
+                      </Link>
+                    ) : (
+                      description
+                    )}
+                  </td>
+                  <td className="py-2 pr-4">{item.address}</td>
+                  <td className="py-2 pr-4">{item.category}</td>
+                  <td className="whitespace-nowrap py-2 pr-4 text-right font-medium">
+                    ${Number(item.amount).toFixed(2)}
+                  </td>
+                  <td className="py-2">
+                    {item.needsReview ? (
+                      <Badge variant="warning">Needs review</Badge>
+                    ) : (
+                      <span className="text-muted">–</span>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     );
   }
 

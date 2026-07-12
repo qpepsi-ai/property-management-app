@@ -9,7 +9,7 @@ export default function ReceiptFilterBar({
   defaultView = "grid",
 }: {
   properties: { id: string; address: string }[];
-  defaultView?: "grid" | "list";
+  defaultView?: "grid" | "table";
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -60,7 +60,7 @@ export default function ReceiptFilterBar({
       </select>
 
       <div className="ml-auto flex items-center rounded-full bg-surface p-0.5 text-xs">
-        {(["grid", "list"] as const).map((mode) => {
+        {(["grid", "table"] as const).map((mode) => {
           const active = (searchParams.get("view") ?? defaultView) === mode;
           return (
             <button

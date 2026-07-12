@@ -21,9 +21,12 @@ export default async function ReceiptsPage({
   const supabase = await createClient();
 
   // The URL param wins; otherwise fall back to the remembered choice.
+  // "list" is the old name for the table view, kept for saved cookies.
   const cookieStore = await cookies();
   const savedView = cookieStore.get("receipts_view")?.value;
-  const resolvedView = (view ?? savedView) === "list" ? ("list" as const) : ("grid" as const);
+  const requested = view ?? savedView;
+  const resolvedView =
+    requested === "table" || requested === "list" ? ("table" as const) : ("grid" as const);
 
   const { data: properties } = await supabase
     .from("properties")

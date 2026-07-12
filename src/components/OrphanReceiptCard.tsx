@@ -65,12 +65,17 @@ export default function OrphanReceiptCard({
 
   return (
     <div className={`flex gap-4 ${cardClass}`}>
-      <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-neutral-bg">
+      <a
+        href={signedUrl ?? undefined}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-neutral-bg"
+      >
         {signedUrl && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={signedUrl} alt="" className="h-full w-full object-cover" />
+          <img src={signedUrl} alt="Receipt photo — click to view full size" className="h-full w-full object-cover" />
         )}
-      </div>
+      </a>
       <div className="flex-1 space-y-2">
         {candidates.length > 0 ? (
           <>

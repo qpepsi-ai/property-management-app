@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { cardClass } from "@/lib/ui";
 
 type Row = {
@@ -45,12 +45,27 @@ export default function IncomeExpenseChart({ rows }: { rows: Row[] }) {
   const step = Math.pow(10, Math.max(0, Math.floor(Math.log10(maxValue)) - 1));
   const axisMax = Math.ceil(maxValue / (step * 5)) * step * 5;
 
+  // Reserve space on the left for the y-axis dollar labels so wide
+  // labels (large portfolios) don't run into the first bar group. Measured
+  // against the actual rendered SVG text (not a canvas font guess) so it
+  // matches whatever font the page applies exactly.
+  const widestAxisLabel = formatDollars(axisMax);
+  const measureRef = useRef<SVGTextElement>(null);
+  const [labelWidth, setLabelWidth] = useState(60);
+
+  useEffect(() => {
+    if (measureRef.current) setLabelWidth(measureRef.current.getComputedTextLength());
+  }, [widestAxisLabel]);
+
+  const leftMargin = Math.ceil(labelWidth) + 12;
+
   // Chart fills the measured container width — group/bar widths shrink
   // as more properties are added, rather than the chart growing wider
   // and needing to scroll.
   const chartWidth = containerWidth;
+  const plotWidth = Math.max(chartWidth - leftMargin, MIN_BAR_WIDTH * 2 + BAR_GAP + GROUP_GAP * 2);
   const groupWidth = Math.max(
-    (chartWidth - (rows.length + 1) * GROUP_GAP) / Math.max(rows.length, 1),
+    (plotWidth - (rows.length + 1) * GROUP_GAP) / Math.max(rows.length, 1),
     MIN_BAR_WIDTH * 2 + BAR_GAP,
   );
   const barWidth = (groupWidth - BAR_GAP) / 2;
@@ -82,6 +97,10 @@ export default function IncomeExpenseChart({ rows }: { rows: Row[] }) {
           role="img"
           aria-label="Year-to-date income and expenses by property"
         >
+          <text ref={measureRef} x={0} y={0} fontSize={10} opacity={0} aria-hidden="true">
+            {widestAxisLabel}
+          </text>
+
           {/* gridlines + axis labels */}
           {gridLines.map((fraction) => {
             const y = 12 + (CHART_HEIGHT - 24) * (1 - fraction);
@@ -89,14 +108,14 @@ export default function IncomeExpenseChart({ rows }: { rows: Row[] }) {
             return (
               <g key={fraction}>
                 <line
-                  x1={0}
+                  x1={leftMargin}
                   x2={chartWidth}
                   y1={y}
                   y2={y}
                   stroke="var(--border)"
                   strokeWidth={1}
                 />
-                <text x={0} y={y - 4} fontSize={10} fill="var(--muted)">
+                <text x={leftMargin - 6} y={y - 4} fontSize={10} textAnchor="end" fill="var(--muted)">
                   {formatDollars(value)}
                 </text>
               </g>
@@ -104,7 +123,7 @@ export default function IncomeExpenseChart({ rows }: { rows: Row[] }) {
           })}
 
           {rows.map((row, i) => {
-            const groupX = GROUP_GAP + i * (groupWidth + GROUP_GAP);
+            const groupX = leftMargin + GROUP_GAP + i * (groupWidth + GROUP_GAP);
             const incomeH = barHeight(row.ytd_income);
             const expenseH = barHeight(row.ytd_expenses);
             const baseline = 12 + (CHART_HEIGHT - 24);

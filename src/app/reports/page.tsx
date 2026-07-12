@@ -4,6 +4,10 @@ import ExportCsvButton from "@/components/ExportCsvButton";
 import IncomeExpenseChart from "@/components/IncomeExpenseChart";
 import { cardClass, pagePanelClass } from "@/lib/ui";
 
+function formatCurrency(value: number) {
+  return value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
 export default async function ReportsPage() {
   const supabase = await createClient();
   const year = new Date().getFullYear();
@@ -42,15 +46,21 @@ export default async function ReportsPage() {
           <div className="mb-6 grid grid-cols-3 gap-4">
             <div className={cardClass}>
               <p className="text-xs text-muted">Total income</p>
-              <p className="mt-1 text-xl font-semibold text-foreground">${totals.income}</p>
+              <p className="mt-1 text-xl font-semibold text-foreground">
+                ${formatCurrency(totals.income)}
+              </p>
             </div>
             <div className={cardClass}>
               <p className="text-xs text-muted">Total expenses</p>
-              <p className="mt-1 text-xl font-semibold text-foreground">${totals.expenses}</p>
+              <p className="mt-1 text-xl font-semibold text-foreground">
+                ${formatCurrency(totals.expenses)}
+              </p>
             </div>
             <div className={cardClass}>
               <p className="text-xs text-muted">Net</p>
-              <p className="mt-1 text-xl font-semibold text-foreground">${totals.net}</p>
+              <p className="mt-1 text-xl font-semibold text-foreground">
+                ${formatCurrency(totals.net)}
+              </p>
             </div>
           </div>
 
@@ -76,18 +86,18 @@ export default async function ReportsPage() {
                         {r.address}
                       </Link>
                     </td>
-                    <td className="py-2 pr-4 text-right">${r.ytd_income}</td>
-                    <td className="py-2 pr-4 text-right">${r.ytd_expenses}</td>
-                    <td className="py-2 text-right font-medium">${r.net}</td>
+                    <td className="py-2 pr-4 text-right">${formatCurrency(r.ytd_income)}</td>
+                    <td className="py-2 pr-4 text-right">${formatCurrency(r.ytd_expenses)}</td>
+                    <td className="py-2 text-right font-medium">${formatCurrency(r.net)}</td>
                   </tr>
                 ))}
               </tbody>
               <tfoot>
                 <tr className="font-medium text-foreground">
                   <td className="py-2 pr-4">Total</td>
-                  <td className="py-2 pr-4 text-right">${totals.income}</td>
-                  <td className="py-2 pr-4 text-right">${totals.expenses}</td>
-                  <td className="py-2 text-right">${totals.net}</td>
+                  <td className="py-2 pr-4 text-right">${formatCurrency(totals.income)}</td>
+                  <td className="py-2 pr-4 text-right">${formatCurrency(totals.expenses)}</td>
+                  <td className="py-2 text-right">${formatCurrency(totals.net)}</td>
                 </tr>
               </tfoot>
             </table>

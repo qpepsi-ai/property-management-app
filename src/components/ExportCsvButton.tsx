@@ -12,7 +12,8 @@ type Row = {
 function toCsv(rows: Row[]) {
   const header = "Property,YTD Income,YTD Expenses,Net";
   const lines = rows.map(
-    (r) => `"${r.address.replace(/"/g, '""')}",${r.ytd_income},${r.ytd_expenses},${r.net}`,
+    (r) =>
+      `"${r.address.replace(/"/g, '""')}",${r.ytd_income.toFixed(2)},${r.ytd_expenses.toFixed(2)},${r.net.toFixed(2)}`,
   );
   return [header, ...lines].join("\n");
 }

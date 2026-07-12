@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import ConvertToMonthToMonthButton from "@/components/ConvertToMonthToMonthButton";
-import EditLeaseRent from "@/components/EditLeaseRent";
+import EditLeaseTerms from "@/components/EditLeaseTerms";
 import EditTenantForm from "@/components/EditTenantForm";
 import EndLeaseButton from "@/components/EndLeaseButton";
 import LeaseDocumentCard from "@/components/LeaseDocumentCard";
@@ -80,34 +79,16 @@ export default async function LeaseDetailPage({
 
       <div className={`mb-6 ${cardClass}`}>
         <h2 className="mb-3 text-sm font-semibold text-foreground">Lease terms</h2>
-        <dl className="space-y-1 text-sm">
-          <div className="flex justify-between">
-            <dt className="text-muted">Status</dt>
-            <dd className="text-foreground">{lease.status}</dd>
-          </div>
-          <div className="flex justify-between">
-            <dt className="text-muted">Start date</dt>
-            <dd className="text-foreground">{lease.start_date}</dd>
-          </div>
-          <div className="flex justify-between">
-            <dt className="text-muted">End date</dt>
-            <dd className="text-foreground">
-              {isMonthToMonth ? "Month-to-month" : lease.end_date}
-            </dd>
-          </div>
-          <div className="flex justify-between">
-            <dt className="text-muted">Monthly rent</dt>
-            <dd>
-              <EditLeaseRent leaseId={lease.id} rentAmount={lease.rent_amount} />
-            </dd>
-          </div>
-          <div className="flex justify-between">
-            <dt className="text-muted">Security deposit</dt>
-            <dd className="text-foreground">
-              {lease.security_deposit ? `$${lease.security_deposit}` : "–"}
-            </dd>
-          </div>
-        </dl>
+        <EditLeaseTerms
+          lease={{
+            id: lease.id,
+            status: lease.status,
+            start_date: lease.start_date,
+            end_date: lease.end_date,
+            rent_amount: lease.rent_amount,
+            security_deposit: lease.security_deposit,
+          }}
+        />
       </div>
 
       {unit && (
@@ -145,12 +126,7 @@ export default async function LeaseDetailPage({
         </div>
       )}
 
-      {lease.status === "active" && (
-        <div className="flex flex-col gap-3 sm:flex-row">
-          {!isMonthToMonth && <ConvertToMonthToMonthButton leaseId={lease.id} />}
-          <EndLeaseButton leaseId={lease.id} />
-        </div>
-      )}
+      {lease.status === "active" && <EndLeaseButton leaseId={lease.id} />}
     </div>
   );
 }

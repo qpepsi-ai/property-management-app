@@ -47,7 +47,10 @@ export default async function ReceiptsPage({
 
   if (property) query = query.eq("property_id", property);
   if (category) query = query.eq("category", category);
-  if (month) {
+  // Browsers without a native month picker (e.g. Safari) submit the month
+  // field as free text, so only apply the filter once it's a real YYYY-MM —
+  // anything else used to crash the render with "Invalid time value".
+  if (month && /^\d{4}-(0[1-9]|1[0-2])$/.test(month)) {
     const { start, end } = monthRange(month);
     query = query.gte("date", start).lt("date", end);
   }

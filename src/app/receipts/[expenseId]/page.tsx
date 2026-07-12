@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import MarkReviewedButton from "@/components/MarkReviewedButton";
+import ReceiptPhotoActions from "@/components/ReceiptPhotoActions";
 import { pagePanelClass } from "@/lib/ui";
 
 export default async function ReceiptDetailPage({
@@ -49,6 +50,13 @@ export default async function ReceiptDetailPage({
             // eslint-disable-next-line @next/next/no-img-element
             <img src={signedUrl.signedUrl} alt="Receipt" className="w-full object-contain" />
           )}
+          {property && (
+            <ReceiptPhotoActions
+              scanId={scan.id}
+              propertyId={property.id}
+              imagePath={scan.image_url}
+            />
+          )}
         </div>
 
         <div>
@@ -59,8 +67,8 @@ export default async function ReceiptDetailPage({
           )}
           {!scan.reviewed_at && !scan.confidence && (
             <p className="mb-4 rounded-2xl bg-warning-bg px-4 py-3 text-sm text-warning-fg">
-              Automatic scan wasn&apos;t able to read this receipt — the photo was saved, but
-              these details were entered manually.
+              These details weren&apos;t extracted from this photo — double check them against
+              the image.
             </p>
           )}
           <dl className="space-y-2 text-sm">
